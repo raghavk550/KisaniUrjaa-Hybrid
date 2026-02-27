@@ -2,7 +2,7 @@
 /* eslint-disable react/react-in-jsx-scope */
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {useState} from 'react';
+import {useContext, useState} from 'react';
 import {
   Image,
   StyleSheet,
@@ -12,6 +12,7 @@ import {
   View,
 } from 'react-native';
 import {RootStackParamList} from '../Navigation/RootNavigator';
+import {AppContext} from '../Navigation/AppContext';
 
 type NavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -21,6 +22,11 @@ type NavigationProp = NativeStackNavigationProp<
 const ForgotPasswordView = () => {
   const navigation = useNavigation<NavigationProp>();
   const [text, setText] = useState('');
+  const context = useContext(AppContext);
+  if (!context) {
+    return null;
+  }
+  const {authFlowType} = context;
   return (
     <View style={styles.container}>
       <Image
@@ -46,7 +52,7 @@ const ForgotPasswordView = () => {
             marginTop: 24,
             marginHorizontal: 20,
           }}>
-          Forgot Password
+          {authFlowType === 'forgotPassword' ? 'Forgot Password' : 'Forgot User ID'}
         </Text>
         <Text
           style={{

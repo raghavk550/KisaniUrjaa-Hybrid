@@ -16,6 +16,8 @@ import VerifiedPasswordView from '../Auth/CreateAccount/VerifiedPasswordView';
 import ForgotPasswordView from '../Auth/ForgotPasswordView';
 import VerifiedForgotPassOTPView from '../Auth/VerifiedForgotPassOTPView';
 import ResetPasswordView from '../Auth/ResetPasswordView';
+import ResetPasswordUpdatedView from '../Auth/ResetPasswrodUpdatedView';
+import ResetUserIdView from '../Auth/ResetUserIdView';
 
 export type RootStackParamList = {
   Splash1: undefined;
@@ -35,6 +37,8 @@ export type RootStackParamList = {
   ForgotPassword: undefined;
   VerifiedForgotPassOTP: {isForgotPassword?: boolean};
   ResetPassword: undefined;
+  ResetPasswordUpdated: undefined;
+  ResetUserId: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -86,6 +90,11 @@ const RootNavigator = () => {
         component={VerifiedForgotPassOTPView}
       />
       <Stack.Screen name="ResetPassword" component={ResetPasswordView} />
+      <Stack.Screen
+        name="ResetPasswordUpdated"
+        component={ResetPasswordUpdatedView}
+      />
+      <Stack.Screen name="ResetUserId" component={ResetUserIdView} />
     </Stack.Navigator>
   );
 };

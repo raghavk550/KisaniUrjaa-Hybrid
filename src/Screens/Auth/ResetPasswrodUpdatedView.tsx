@@ -2,12 +2,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/react-in-jsx-scope */
+import {useNavigation} from '@react-navigation/native';
 import {useContext, useEffect} from 'react';
 import {Image, StyleSheet, Text, View} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
 import {AppContext} from '../Navigation/AppContext';
 
-const VerifiedForgotPassOTPView = () => {
+const ResetPasswordUpdatedView = () => {
   const context = useContext(AppContext);
   if (!context) {
     return null;
@@ -16,9 +16,10 @@ const VerifiedForgotPassOTPView = () => {
   const navigation = useNavigation();
   useEffect(() => {
     const timer = setTimeout(() => {
-      authFlowType === 'forgotPassword'
-        ? navigation.navigate('ResetPassword' as never)
-        : navigation.navigate('ResetUserId' as never);
+      navigation.reset({
+        index: 0,
+        routes: [{name: 'Login' as never}],
+      });
     }, 2000); // 2 sec splash
     return () => clearTimeout(timer);
   }, []);
@@ -44,7 +45,7 @@ const VerifiedForgotPassOTPView = () => {
             marginHorizontal: 10,
             color: '#161413',
           }}>
-          Verified Successfully
+          {authFlowType === 'forgotPassword' ? 'Password' : 'User ID'} Updated
         </Text>
         <Text
           style={{
@@ -54,14 +55,15 @@ const VerifiedForgotPassOTPView = () => {
             marginHorizontal: 10,
             color: '#6C7278',
           }}>
-          Your OTP has been successfully Verified
+          Your {authFlowType === 'forgotPassword' ? 'password' : 'user id'} has
+          been successfully updated.
         </Text>
       </View>
     </View>
   );
 };
 
-export default VerifiedForgotPassOTPView;
+export default ResetPasswordUpdatedView;
 
 const styles = StyleSheet.create({
   container: {

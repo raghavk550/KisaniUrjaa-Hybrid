@@ -11,13 +11,8 @@ import {
   View,
 } from 'react-native';
 
-const ResetPasswordView = () => {
+const ResetUserIdView = () => {
   const [pass, setPass] = useState('');
-  const [confirmPass, setConfirmPass] = useState('');
-  const [securePass, setSecurePass] = useState(true);
-  const [confirmSecurePass, setConfirmSecurePass] = useState(true);
-  const eyeIcon = require('../../Assets/Images/ic-eye.png');
-  const eyeOffIcon = require('../../Assets/Images/ic-eye-off.png');
   const navigation = useNavigation();
   return (
     <View style={styles.container}>
@@ -48,7 +43,7 @@ const ResetPasswordView = () => {
             marginHorizontal: 20,
             color: '#161413',
           }}>
-          Reset Password
+          Reset User ID
         </Text>
         <Text
           style={{
@@ -58,7 +53,7 @@ const ResetPasswordView = () => {
             marginHorizontal: 20,
             color: '#6C7278',
           }}>
-          Enter a new password
+          Enter a new user id
         </Text>
         <Text
           style={{
@@ -68,7 +63,7 @@ const ResetPasswordView = () => {
             marginTop: 24,
             paddingHorizontal: 20,
           }}>
-          New Password
+          New User Id
         </Text>
         <View
           style={{
@@ -83,12 +78,12 @@ const ResetPasswordView = () => {
             flexDirection: 'row',
           }}>
           <Image
-            source={require('../../Assets/Images/ic-password.png')}
+            source={require('../../Assets/Images/ic-user.png')}
             style={{marginLeft: 16}}
             resizeMode="cover"
           />
           <TextInput
-            placeholder="Enter Password"
+            placeholder="Enter User ID"
             style={{
               flex: 1,
               color: '#161413',
@@ -99,65 +94,7 @@ const ResetPasswordView = () => {
             value={pass}
             onChangeText={setPass}
             cursorColor={'#161413'}
-            secureTextEntry={securePass}
           />
-          <TouchableOpacity onPress={() => setSecurePass(!securePass)}>
-            <Image
-              source={securePass ? eyeOffIcon : eyeIcon}
-              style={{marginRight: 16}}
-              resizeMode="cover"
-            />
-          </TouchableOpacity>
-        </View>
-        <Text
-          style={{
-            fontWeight: '500',
-            fontSize: 14,
-            color: '#353231',
-            marginTop: 24,
-            paddingHorizontal: 20,
-          }}>
-          Confirm Password
-        </Text>
-        <View
-          style={{
-            height: 56,
-            borderColor: '#E3E2E1',
-            borderWidth: 1,
-            borderRadius: 12,
-            width: '90%',
-            alignSelf: 'center',
-            marginTop: 6,
-            alignItems: 'center',
-            flexDirection: 'row',
-          }}>
-          <Image
-            source={require('../../Assets/Images/ic-password.png')}
-            style={{marginLeft: 16}}
-            resizeMode="cover"
-          />
-          <TextInput
-            placeholder="Confirm Password"
-            style={{
-              flex: 1,
-              color: '#161413',
-              fontSize: 16,
-              marginHorizontal: 12,
-              fontWeight: '500',
-            }}
-            value={confirmPass}
-            onChangeText={setConfirmPass}
-            cursorColor={'#161413'}
-            secureTextEntry={confirmSecurePass}
-          />
-          <TouchableOpacity
-            onPress={() => setConfirmSecurePass(!confirmSecurePass)}>
-            <Image
-              source={confirmSecurePass ? eyeOffIcon : eyeIcon}
-              style={{marginRight: 16}}
-              resizeMode="cover"
-            />
-          </TouchableOpacity>
         </View>
         <TouchableOpacity
           onPress={() => {
@@ -171,7 +108,7 @@ const ResetPasswordView = () => {
   );
 };
 
-export default ResetPasswordView;
+export default ResetUserIdView;
 
 const styles = StyleSheet.create({
   container: {

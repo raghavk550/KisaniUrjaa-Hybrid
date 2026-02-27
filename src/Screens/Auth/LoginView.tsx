@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/react-in-jsx-scope */
 import {useNavigation} from '@react-navigation/native';
-import {useState} from 'react';
+import {useContext, useState} from 'react';
 import {
   Image,
   StyleSheet,
@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import {AppContext} from '../Navigation/AppContext';
 
 type LoginType = 'otp' | 'userId';
 
@@ -22,6 +23,11 @@ const LoginView = () => {
   const eyeIcon = require('../../Assets/Images/ic-eye.png');
   const eyeOffIcon = require('../../Assets/Images/ic-eye-off.png');
   const [securePass, setSecurePass] = useState(true);
+  const context = useContext(AppContext);
+  if (!context) {
+    return null;
+  }
+  const {setAuthFlow} = context;
   return (
     <View style={styles.container}>
       <Image
@@ -196,6 +202,10 @@ const LoginView = () => {
               />
             </View>
             <TouchableOpacity
+              onPress={() => {
+                setAuthFlow('forgotUserId');
+                navigation.navigate('ForgotPassword' as never);
+              }}
               style={{alignSelf: 'flex-end', marginRight: 20, marginTop: 6}}>
               <Text style={{fontWeight: '600', fontSize: 14, color: '#FC8019'}}>
                 Forgot User ID?
@@ -252,6 +262,7 @@ const LoginView = () => {
             </View>
             <TouchableOpacity
               onPress={() => {
+                setAuthFlow('forgotPassword');
                 navigation.navigate('ForgotPassword' as never);
               }}
               style={{alignSelf: 'flex-end', marginRight: 20, marginTop: 6}}>
