@@ -12,6 +12,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import Video from 'react-native-video';
 import {AppContext} from '../Navigation/AppContext';
+import { storage } from '../Navigation/Storage';
 
 const SplashView2 = () => {
   const BUTTON_WIDTH = Dimensions.get('window').width * 0.85;
@@ -39,6 +40,7 @@ const SplashView2 = () => {
             duration: 150,
             useNativeDriver: true,
           }).start(() => {
+            storage.set('isSplash2Done', true);
             setAppState(prev => ({
               ...prev,
               isSplash2Done: true,

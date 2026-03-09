@@ -1,11 +1,9 @@
 /* eslint-disable react/react-in-jsx-scope */
 // RootNavigator.tsx
-import {useContext} from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import SplashView1 from '../Initialisation/SplashView1';
 import SplashView2 from '../Initialisation/SplashView2';
 import ChooseLanguageView from '../Initialisation/ChooseLanguageView';
-import {AppContext} from './AppContext';
 import SignUpView from '../Auth/SignUp';
 import LoginView from '../Auth/LoginView';
 import OTPView from '../Auth/OTPView';
@@ -18,6 +16,9 @@ import VerifiedForgotPassOTPView from '../Auth/VerifiedForgotPassOTPView';
 import ResetPasswordView from '../Auth/ResetPasswordView';
 import ResetPasswordUpdatedView from '../Auth/ResetPasswrodUpdatedView';
 import ResetUserIdView from '../Auth/ResetUserIdView';
+import HomeView from '../Home/Home';
+import {useContext} from 'react';
+import {AppContext} from './AppContext';
 
 export type RootStackParamList = {
   Splash1: undefined;
@@ -27,8 +28,8 @@ export type RootStackParamList = {
   SignUp: undefined;
   Login: undefined;
 
-  Otp: {isForgotPassword?: boolean};
-  VerifiedOtp: undefined;
+  Otp: {isLogin?:boolean, isForgotPassword?: boolean};
+  VerifiedOtp: {isLogin?: boolean};
 
   CreateAccount: undefined;
   CreatePassword: undefined;
@@ -39,6 +40,7 @@ export type RootStackParamList = {
   ResetPassword: undefined;
   ResetPasswordUpdated: undefined;
   ResetUserId: undefined;
+  Home: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -51,6 +53,7 @@ const RootNavigator = () => {
 
   const {appState} = context;
 
+  // 🔥 Onboarding Flow
   if (!appState.isSplash1Done) {
     return (
       <Stack.Navigator screenOptions={{headerShown: false}}>
@@ -75,13 +78,25 @@ const RootNavigator = () => {
     );
   }
 
+  // 🔥 Auth / Main Flow
   return (
-    <Stack.Navigator screenOptions={{headerShown: false}}>
+    <Stack.Navigator
+      initialRouteName={
+        !appState.isSignUp
+          ? 'SignUp'
+          : !appState.isAccountCreated
+          ? 'CreateAccount'
+          : !appState.isLogin
+          ? 'Login'
+          : 'Home'
+      }
+      screenOptions={{headerShown: false}}>
       <Stack.Screen name="SignUp" component={SignUpView} />
+      <Stack.Screen name="CreateAccount" component={CreateAccountView} />
       <Stack.Screen name="Login" component={LoginView} />
+      <Stack.Screen name="Home" component={HomeView} />
       <Stack.Screen name="Otp" component={OTPView} />
       <Stack.Screen name="VerifiedOtp" component={VerifiedOtpView} />
-      <Stack.Screen name="CreateAccount" component={CreateAccountView} />
       <Stack.Screen name="CreatePassword" component={CreatePasswordView} />
       <Stack.Screen name="VerifiedPassword" component={VerifiedPasswordView} />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordView} />

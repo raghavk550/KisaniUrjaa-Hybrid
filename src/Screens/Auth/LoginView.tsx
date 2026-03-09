@@ -11,15 +11,22 @@ import {
   View,
 } from 'react-native';
 import {AppContext} from '../Navigation/AppContext';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../Navigation/RootNavigator';
 
 type LoginType = 'otp' | 'userId';
+
+type NavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  'Login'
+>;
 
 const LoginView = () => {
   const [text, setText] = useState('');
   const [userId, setUserId] = useState('');
   const [pass, setPass] = useState('');
   const [loginType, setLoginType] = useState<LoginType>('otp');
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp>();
   const eyeIcon = require('../../Assets/Images/ic-eye.png');
   const eyeOffIcon = require('../../Assets/Images/ic-eye-off.png');
   const [securePass, setSecurePass] = useState(true);
@@ -274,7 +281,7 @@ const LoginView = () => {
         )}
         <TouchableOpacity
           onPress={() => {
-            navigation.navigate('Otp' as never);
+            navigation.navigate('Otp', {isLogin: true});
           }}
           style={styles.otpButton}>
           <Text style={styles.otpText}>

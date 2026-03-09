@@ -10,10 +10,17 @@ import {
   View,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../Navigation/RootNavigator';
+
+type NavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  'SignUp'
+>;
 
 const SignUp = () => {
   const [text, setText] = useState('');
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp>();
   return (
     <View style={styles.container}>
       <Image
@@ -96,7 +103,7 @@ const SignUp = () => {
         </View>
         <TouchableOpacity
           onPress={() => {
-            navigation.navigate('Otp' as never);
+            navigation.navigate('Otp', {isLogin: false});
           }}
           style={styles.otpButton}>
           <Text style={styles.otpText}>Get OTP</Text>

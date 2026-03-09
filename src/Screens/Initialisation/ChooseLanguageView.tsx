@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import {Modal} from 'react-native';
 import {AppContext} from '../Navigation/AppContext';
+import { storage } from '../Navigation/Storage';
 
 const ITEM_SIZE = Dimensions.get('window').width;
 const ChooseLanguageView = () => {
@@ -66,6 +67,7 @@ const ChooseLanguageView = () => {
   const {setAppState} = context;
 
   const handleLanguageSelection = () => {
+    storage.set('isLanguageSelected', true);
     setAppState(prev => ({
       ...prev,
       isLanguageSelected: true,

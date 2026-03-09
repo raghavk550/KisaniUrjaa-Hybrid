@@ -5,6 +5,7 @@
 import {useContext, useEffect} from 'react';
 import {View, Image, StyleSheet} from 'react-native';
 import {AppContext} from '../Navigation/AppContext';
+import { storage } from '../Navigation/Storage';
 
 const SplashView1 = () => {
   const context = useContext(AppContext);
@@ -16,6 +17,7 @@ const SplashView1 = () => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
+      storage.set('isSplash1Done', true);
       setAppState(prev => ({
         ...prev,
         isSplash1Done: true,

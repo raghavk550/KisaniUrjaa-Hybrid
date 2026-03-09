@@ -13,19 +13,23 @@ import {
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {useEffect, useRef, useState} from 'react';
 import {RootStackParamList} from '../Navigation/RootNavigator';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
 const OTP_LENGTH = 6;
 
 type OTPRouteProp = RouteProp<RootStackParamList, 'Otp'>;
 
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Otp'>;
+
 const OTPView = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp>();
   const [timeLeft, setTimeLeft] = useState(60);
   const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(''));
   const inputs = useRef<TextInput[]>([]);
   const [cardWidth, setCardWidth] = useState(0);
   const route = useRoute<OTPRouteProp>();
   const isForgotPassword = route.params?.isForgotPassword ?? false;
+  const isLogin = route.params?.isLogin ?? false;
 
   useEffect(() => {
     if (timeLeft === 0) {
@@ -172,7 +176,7 @@ const OTPView = () => {
           onPress={() => {
             isForgotPassword
               ? navigation.navigate('VerifiedForgotPassOTP' as never)
-              : navigation.navigate('VerifiedOtp' as never);
+              : navigation.navigate('VerifiedOtp', {isLogin: isLogin});
           }}
           style={styles.verifyButton}>
           <Text style={styles.verifyText}>Verify</Text>

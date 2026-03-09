@@ -1,15 +1,29 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/react-in-jsx-scope */
-import {useEffect} from 'react';
+import {useContext, useEffect} from 'react';
 import {Image, StyleSheet, Text, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import {storage} from '../../Navigation/Storage';
+import {AppContext} from '../../Navigation/AppContext';
 
 const VerifiedPasswordView = () => {
+  const context = useContext(AppContext);
+  if (!context) {
+    return null;
+  }
+
+  const {setAppState} = context;
   const navigation = useNavigation();
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.navigate('CreateAccount' as never);
+      setAppState(prev => ({
+        ...prev,
+        isAccountCreated: true,
+      }));
+      storage.set('isAccountCreated', true);
+      navigation.navigate('Home' as never);
     }, 2000); // 2 sec splash
     return () => clearTimeout(timer);
   }, []);

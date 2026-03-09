@@ -1,15 +1,42 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/react-in-jsx-scope */
-import {useEffect} from 'react';
+import {useContext, useEffect} from 'react';
 import {Image, StyleSheet, Text, View} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
+import {storage} from '../Navigation/Storage';
+import {AppContext} from '../Navigation/AppContext';
+import {RootStackParamList} from '../Navigation/RootNavigator';
+
+type VerifiedOtpRouteProp = RouteProp<RootStackParamList, 'VerifiedOtp'>;
 
 const VerifiedOTPView = () => {
+  const context = useContext(AppContext);
+  if (!context) {
+    return null;
+  }
+  const {setAppState} = context;
   const navigation = useNavigation();
+  const route = useRoute<VerifiedOtpRouteProp>();
+  const isLogin = route.params?.isLogin ?? false;
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.navigate('CreateAccount' as never);
+      if (!isLogin) {
+        setAppState(prev => ({
+          ...prev,
+          isSignUp: true,
+        }));
+        storage.set('isSignUp', true);
+        navigation.navigate('CreateAccount' as never);
+      } else {
+        setAppState(prev => ({
+          ...prev,
+          isLogin: true,
+        }));
+        storage.set('isLogin', true);
+        navigation.navigate('Home' as never);
+      }
     }, 2000); // 2 sec splash
     return () => clearTimeout(timer);
   }, []);
