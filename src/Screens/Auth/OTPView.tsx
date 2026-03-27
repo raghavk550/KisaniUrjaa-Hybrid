@@ -1,6 +1,7 @@
 /* eslint-disable react/react-in-jsx-scope */
 /* eslint-disable react-native/no-inline-styles */
 import {
+  ActivityIndicator,
   Image,
   NativeSyntheticEvent,
   StyleSheet,
@@ -14,6 +15,10 @@ import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {useEffect, useRef, useState} from 'react';
 import {RootStackParamList} from '../Navigation/RootNavigator';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../Helper/Redux/User/UserStore';
+import {resendOTP, verifyOTP} from '../../Helper/Redux/Auth/AuthSlice';
+import {Toast} from 'react-native-toast-message/lib/src/Toast';
 
 const OTP_LENGTH = 6;
 
@@ -30,6 +35,9 @@ const OTPView = () => {
   const route = useRoute<OTPRouteProp>();
   const isForgotPassword = route.params?.isForgotPassword ?? false;
   const isLogin = route.params?.isLogin ?? false;
+  let apiResult = route.params?.apiResult ?? null;
+  const dispatch = useDispatch<AppDispatch>();
+  const {loading} = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     if (timeLeft === 0) {
@@ -59,7 +67,6 @@ const OTPView = () => {
     } else if (text && index === OTP_LENGTH - 1) {
       inputs.current[index]?.blur();
     }
-    // console.log('OTP Entered:', newOtp.join(''));
   };
 
   const handleKeyPress = (
@@ -159,8 +166,23 @@ const OTPView = () => {
                   Didn’t get the code?
                 </Text>
                 <TouchableOpacity
-                  onPress={() => {
-                    setTimeLeft(60); // Reset timer on resend
+                  onPress={async () => {
+                    try {
+                      apiResult = await dispatch(resendOTP(apiResult!)).unwrap();
+                      setTimeLeft(60); // Reset timer on successful resend
+                      Toast.show({
+                        type: 'success',
+                        text1: apiResult.user.otp ?? 'OTP Sent',
+                        position: 'bottom',
+                      });
+                    } catch (resendError) {
+                      Toast.show({
+                        type: 'error',
+                        text1: 'Error',
+                        text2: String(resendError),
+                        position: 'bottom',
+                      });
+                    }
                   }}
                   style={{marginLeft: 8}}>
                   <Text
@@ -173,15 +195,59 @@ const OTPView = () => {
           </View>
         </View>
         <TouchableOpacity
-          onPress={() => {
-            isForgotPassword
-              ? navigation.navigate('VerifiedForgotPassOTP' as never)
-              : navigation.navigate('VerifiedOtp', {isLogin: isLogin});
+          onPress={async () => {
+            const enteredOtp = otp.join('');
+            if (enteredOtp.length !== OTP_LENGTH) {
+              // alert('Please enter the complete OTP.'); --- IGNORE ---
+              Toast.show({
+                type: 'error',
+                text1: 'Incomplete OTP',
+                text2: `Please enter the ${OTP_LENGTH}-digit OTP.`,
+                position: 'bottom',
+              });
+              return;
+            }
+
+            try {
+              await dispatch(
+                verifyOTP({
+                  otp: enteredOtp,
+                  apiResult: apiResult!,
+                }),
+              ).unwrap();
+
+              isForgotPassword
+                ? navigation.navigate('VerifiedForgotPassOTP' as never)
+                : navigation.navigate('VerifiedOtp', {isLogin: isLogin});
+            } catch (verifyError) {
+              Toast.show({
+                type: 'error',
+                text1: 'Error',
+                text2: String(verifyError),
+                position: 'bottom',
+              });
+            }
           }}
           style={styles.verifyButton}>
           <Text style={styles.verifyText}>Verify</Text>
         </TouchableOpacity>
       </View>
+      {loading && (
+        <View
+          style={{
+            backgroundColor: '#00000030',
+            flex: 1,
+            position: 'absolute',
+            justifyContent: 'center',
+            alignContent: 'center',
+            alignItems: 'center',
+            width: '100%',
+            height: '100%',
+            zIndex: 999,
+          }}>
+          <ActivityIndicator size="large" color="#FC8019" />
+        </View>
+      )}
     </View>
   );
 };

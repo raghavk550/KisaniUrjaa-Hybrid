@@ -5,13 +5,53 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 import StepIndicator from './Views/StepIndicator';
+import {useContext, useState} from 'react';
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import Step1View from './Views/Step1View';
+import Step2View from './Views/Step2View';
+import {logout, logoutUser} from '../../Helper/Redux/Auth/AuthSlice';
+import {storage} from '../Navigation/Storage';
+import {AppContext} from '../Navigation/AppContext';
+import {AppDispatch} from '../../Helper/Redux/User/UserStore';
+import {useDispatch} from 'react-redux';
+import {User} from '../../Helper/ApiService/LoginApi';
+import {RootStackParamList} from '../Navigation/RootNavigator';
+
+export const enum Gender {
+  Male,
+  Female,
+  None,
+}
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
 const HomeView = () => {
+  const [currentStep, setCurrentStep] = useState(1);
+  const totalSteps = 3;
+  const dispatch = useDispatch<AppDispatch>();
+  const navigation = useNavigation<NavigationProp>();
+  const context = useContext(AppContext);
+  if (!context) {
+    return null;
+  }
+  const {setAppState, setUser} = context;
+
+  const renderStep = () => {
+    switch (currentStep) {
+      case 1:
+        return <Step1View />;
+      case 2:
+        return <Step2View />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Image
@@ -27,6 +67,45 @@ const HomeView = () => {
           }}>
           Profile Details
         </Text>
+        <TouchableOpacity
+          style={{position: 'absolute', right: 16, top: 2}}
+          onPress={async () => {
+            const storedUser = storage.getString('user');
+
+            let parsedUser: {user: User; token: string} | null = null;
+            if (storedUser) {
+              try {
+                parsedUser = JSON.parse(storedUser) as {user: User; token: string};
+              } catch {
+                parsedUser = null;
+              }
+            }
+
+            try {
+              if (parsedUser?.token) {
+                await dispatch(logoutUser({token: parsedUser.token})).unwrap();
+              }
+            } catch (error) {
+              console.log('Logout API failed:', error);
+            } finally {
+              dispatch(logout());
+              setUser(null);
+              storage.remove('user');
+              setAppState(prev => ({
+                ...prev,
+                isLogin: false,
+              }));
+              storage.set('isLogin', false);
+              navigation.reset({
+                index: 0,
+                routes: [{name: 'SignUp'}],
+              });
+            }
+          }}>
+          <Text style={{color: '#FC8019', fontSize: 14, fontWeight: '600'}}>
+            Logout
+          </Text>
+        </TouchableOpacity>
         <View
           style={{
             borderRadius: 16,
@@ -67,273 +146,22 @@ const HomeView = () => {
                 fontSize: 12,
                 fontWeight: 'regular',
               }}>
-              (1/3 Steps)
+              ({currentStep >= totalSteps ? totalSteps : currentStep}/
+              {totalSteps} Steps)
             </Text>
           </View>
-          <StepIndicator currentStep={1} totalSteps={3} />
+          <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
         </View>
       </View>
       <ScrollView style={{marginBottom: 30}}>
-        <Text style={{marginTop: 20, marginLeft: 16}}>My Kisani Didi</Text>
-        <View
-          style={{
-            marginTop: 4,
-            flexDirection: 'row',
-            alignSelf: 'stretch',
-            marginHorizontal: 16,
-            borderRadius: 12,
-            borderColor: '#E3E2E1',
-            borderWidth: 1,
-            height: 56,
-            alignItems: 'center',
-            paddingHorizontal: 14,
-          }}>
-          <Image source={require('../../Assets/Images/Home/home_didi.png')} />
-          <TextInput
-            placeholder="Select Kisani Didi"
-            style={{
-              flex: 1,
-              marginHorizontal: 8,
-              fontSize: 14,
-              fontWeight: 'semibold',
-              color: '#353231',
-            }}
-          />
-          <Image source={require('../../Assets/Images/ic-chevron-down.png')} />
-        </View>
-        <View style={styles.mobileNumView}>
-          <Text
-            style={{
-              fontWeight: '500',
-              fontSize: 16,
-            }}>
-            Profile Verification
-          </Text>
-          <Image
-            source={require('../../Assets/Images/required.png')}
-            style={{marginLeft: 2, marginTop: 2}}
-            resizeMode="cover"
-          />
-        </View>
-        <Text
-          style={{
-            marginTop: 8,
-            marginHorizontal: 16,
-            fontSize: 14,
-            fontWeight: 'regular',
-            color: '#625D5B',
-          }}>
-          Choose a Personal Identification document to upload. It will fill many
-          details automatically.
-        </Text>
-        <View
-          style={{
-            marginTop: 12,
-            flexDirection: 'row',
-            alignSelf: 'stretch',
-            marginHorizontal: 16,
-            borderRadius: 12,
-            borderColor: '#E3E2E1',
-            borderWidth: 1,
-            height: 56,
-            alignItems: 'center',
-            paddingHorizontal: 14,
-          }}>
-          <Image source={require('../../Assets/Images/ic_document.png')} />
-          <TextInput
-            placeholder="Select Document"
-            style={{
-              flex: 1,
-              marginHorizontal: 8,
-              fontSize: 14,
-              fontWeight: 'semibold',
-              color: '#353231',
-            }}
-          />
-          <Image source={require('../../Assets/Images/ic-chevron-down.png')} />
-        </View>
-
-        <View
-          style={{
-            borderRadius: 14,
-            alignSelf: 'stretch',
-            marginHorizontal: 16,
-            marginTop: 28,
-            borderColor: '#B0B0B030',
-            borderWidth: 1,
-          }}>
-          <Text
-            style={{
-              paddingVertical: 20,
-              paddingHorizontal: 16,
-              color: '#DF8700',
-              borderTopLeftRadius: 14,
-              borderTopRightRadius: 14,
-              backgroundColor: '#DF870005',
-              fontSize: 14,
-              fontWeight: 'semibold',
-            }}>
-            Farmer Details
-          </Text>
-          <View style={styles.mobileNumView}>
-            <Text
-              style={{
-                fontWeight: '500',
-                fontSize: 16,
-              }}>
-              Full Name
-            </Text>
-            <Image
-              source={require('../../Assets/Images/required.png')}
-              style={{marginLeft: 2, marginTop: 2}}
-              resizeMode="cover"
-            />
-          </View>
-          <View
-            style={{
-              marginTop: 12,
-              flexDirection: 'row',
-              alignSelf: 'stretch',
-              marginHorizontal: 16,
-              borderRadius: 12,
-              borderColor: '#E3E2E1',
-              borderWidth: 1,
-              height: 56,
-              alignItems: 'center',
-              paddingHorizontal: 14,
-            }}>
-            <Image source={require('../../Assets/Images/ic-user.png')} />
-            <TextInput
-              placeholder="Enter Full Name"
-              style={{
-                flex: 1,
-                marginHorizontal: 8,
-                fontSize: 14,
-                fontWeight: 'semibold',
-                color: '#353231',
-              }}
-            />
-          </View>
-          <Text
-            style={{
-              fontWeight: '500',
-              fontSize: 16,
-              marginTop: 24,
-              marginHorizontal: 16,
-            }}>
-            Gender
-          </Text>
-          <View
-            style={{
-              marginTop: 8,
-              marginHorizontal: 10,
-              height: 52,
-              flexDirection: 'row',
-              alignSelf: 'stretch',
-              justifyContent: 'space-between',
-              overflow: 'hidden',
-            }}>
-            <View
-              style={{
-                flex: 1,
-                height: 52,
-                alignSelf: 'stretch',
-                marginHorizontal: 6,
-                justifyContent: 'center',
-                borderWidth: 1,
-                borderRadius: 12,
-                borderColor: '#E3E2E1',
-                overflow: 'hidden',
-              }}>
-              <TouchableOpacity style={{height: '100%'}}>
-                <View
-                  style={{
-                    flex: 1,
-                    flexDirection: 'row',
-                    marginLeft: 16,
-                    alignItems: 'center',
-                  }}>
-                  <Text>Male</Text>
-                  <Image
-                    source={require('../../Assets/Images/Home/male_home.png')}
-                    style={{position: 'absolute', bottom: 0, right: 0}}
-                    resizeMode="cover"
-                  />
-                </View>
-              </TouchableOpacity>
-            </View>
-            <View
-              style={{
-                flex: 1,
-                height: 52,
-                alignSelf: 'stretch',
-                marginHorizontal: 6,
-                justifyContent: 'center',
-                borderWidth: 1,
-                borderRadius: 12,
-                borderColor: '#E3E2E1',
-                overflow: 'hidden',
-              }}>
-              <TouchableOpacity style={{height: '100%'}}>
-                <View
-                  style={{
-                    flex: 1,
-                    flexDirection: 'row',
-                    marginLeft: 16,
-                    alignItems: 'center',
-                  }}>
-                  <Text>Female</Text>
-                  <Image
-                    source={require('../../Assets/Images/Home/female_home.png')}
-                    style={{position: 'absolute', bottom: 0, right: 0}}
-                  />
-                </View>
-              </TouchableOpacity>
-            </View>
-          </View>
-          <View style={styles.mobileNumView}>
-            <Text
-              style={{
-                fontWeight: '500',
-                fontSize: 16,
-              }}>
-              Date of Birth
-            </Text>
-          </View>
-          <View
-            style={{
-              marginTop: 12,
-              flexDirection: 'row',
-              alignSelf: 'stretch',
-              marginHorizontal: 16,
-              borderRadius: 12,
-              borderColor: '#E3E2E1',
-              borderWidth: 1,
-              height: 56,
-              alignItems: 'center',
-              paddingHorizontal: 14,
-              marginBottom: 24,
-            }}>
-            <Image source={require('../../Assets/Images/ic_calendar.png')} />
-            <TextInput
-              placeholder="DD/MM/YY"
-              style={{
-                flex: 1,
-                marginHorizontal: 8,
-                fontSize: 14,
-                fontWeight: 'semibold',
-                color: '#353231',
-              }}
-            />
-          </View>
-        </View>
+        {renderStep()}
         <TouchableOpacity
-            onPress={() => {
-              // setShowModal(true);
-            }}
-            style={[styles.continueButton]}>
-            <Text style={styles.continueText}>Continue</Text>
-          </TouchableOpacity>
+          onPress={() => {
+            currentStep < 4 && setCurrentStep(currentStep + 1);
+          }}
+          style={[styles.continueButton]}>
+          <Text style={styles.continueText}>Continue</Text>
+        </TouchableOpacity>
       </ScrollView>
     </View>
   );
@@ -351,12 +179,6 @@ const styles = StyleSheet.create({
     top: 60,
     alignItems: 'center',
     width: '100%',
-  },
-  mobileNumView: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginTop: 24,
-    marginHorizontal: 16,
   },
   continueButton: {
     height: 56,

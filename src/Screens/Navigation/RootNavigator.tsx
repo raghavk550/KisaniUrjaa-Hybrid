@@ -19,6 +19,7 @@ import ResetUserIdView from '../Auth/ResetUserIdView';
 import HomeView from '../Home/Home';
 import {useContext} from 'react';
 import {AppContext} from './AppContext';
+import { ApiResult } from '../../Helper/ApiService/LoginApi';
 
 export type RootStackParamList = {
   Splash1: undefined;
@@ -28,7 +29,7 @@ export type RootStackParamList = {
   SignUp: undefined;
   Login: undefined;
 
-  Otp: {isLogin?:boolean, isForgotPassword?: boolean};
+  Otp: {isLogin?:boolean, isForgotPassword?: boolean, apiResult?: ApiResult};
   VerifiedOtp: {isLogin?: boolean};
 
   CreateAccount: undefined;
@@ -52,6 +53,8 @@ const RootNavigator = () => {
   }
 
   const {appState} = context;
+  const {user} = context;
+  const hasCreatedUserId = user?.user?.isUserIdCreated ?? false;
 
   // 🔥 Onboarding Flow
   if (!appState.isSplash1Done) {
@@ -81,14 +84,15 @@ const RootNavigator = () => {
   // 🔥 Auth / Main Flow
   return (
     <Stack.Navigator
+      key={appState.isLogin ? 'logged-in' : 'logged-out'}
       initialRouteName={
-        !appState.isSignUp
+        !appState.isLogin
           ? 'SignUp'
-          : !appState.isAccountCreated
-          ? 'CreateAccount'
-          : !appState.isLogin
-          ? 'Login'
-          : 'Home'
+          : !user
+          ? 'SignUp'
+          : hasCreatedUserId
+          ? 'Home'
+          : 'CreateAccount'
       }
       screenOptions={{headerShown: false}}>
       <Stack.Screen name="SignUp" component={SignUpView} />

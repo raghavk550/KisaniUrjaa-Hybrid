@@ -8,6 +8,8 @@ import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {storage} from '../Navigation/Storage';
 import {AppContext} from '../Navigation/AppContext';
 import {RootStackParamList} from '../Navigation/RootNavigator';
+import {useSelector} from 'react-redux';
+import {RootState} from '../../Helper/Redux/User/UserStore';
 
 type VerifiedOtpRouteProp = RouteProp<RootStackParamList, 'VerifiedOtp'>;
 
@@ -16,19 +18,34 @@ const VerifiedOTPView = () => {
   if (!context) {
     return null;
   }
-  const {setAppState} = context;
+  const {setAppState, setUser} = context;
   const navigation = useNavigation();
   const route = useRoute<VerifiedOtpRouteProp>();
   const isLogin = route.params?.isLogin ?? false;
+  const {data} = useSelector((state: RootState) => state.auth);
+
   useEffect(() => {
     const timer = setTimeout(() => {
+      if (data?.user) {
+        setUser({user: data.user, token: data.token!});
+        storage.set(
+          'user',
+          JSON.stringify({user: data.user, token: data.token}),
+        );
+      }
+
       if (!isLogin) {
         setAppState(prev => ({
           ...prev,
-          isSignUp: true,
+          isLogin: true,
         }));
-        storage.set('isSignUp', true);
-        navigation.navigate('CreateAccount' as never);
+        storage.set('isLogin', true);
+
+        if (data?.user?.isUserIdCreated) {
+          navigation.navigate('Home' as never);
+        } else {
+          navigation.navigate('CreateAccount' as never);
+        }
       } else {
         setAppState(prev => ({
           ...prev,

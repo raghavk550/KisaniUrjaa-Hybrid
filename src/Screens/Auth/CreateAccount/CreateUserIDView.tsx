@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import React, {useState} from 'react';
 import {
   View,
@@ -8,12 +8,19 @@ import {
   Image,
   TextInput,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
+import {createUserId} from '../../../Helper/Redux/Auth/AuthSlice';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../../Helper/Redux/User/UserStore';
+import Toast from 'react-native-toast-message';
 
 const CreateAccountView = () => {
   const [text, setText] = useState('');
   const [showTooltip, setShowTooltip] = useState(false);
   const navigation = useNavigation();
+  const dispatch = useDispatch<AppDispatch>();
+  const {data, loading} = useSelector((state: RootState) => state.auth);
   return (
     <View style={styles.container}>
       <Image
@@ -117,13 +124,44 @@ const CreateAccountView = () => {
           />
         </View>
         <TouchableOpacity
-          onPress={() => {
-            navigation.navigate('CreatePassword' as never);
+          onPress={async () => {
+            try {
+              console.log(data);
+              if (data) {
+                await dispatch(
+                  createUserId({userId: text, apiResult: data}),
+                ).unwrap();
+                navigation.navigate('CreatePassword' as never);
+              }
+            } catch (error) {
+              Toast.show({
+                type: 'error',
+                text1: 'Error',
+                text2: String(error),
+                position: 'bottom',
+              });
+            }
           }}
           style={styles.continueButton}>
           <Text style={styles.continueText}>Continue</Text>
         </TouchableOpacity>
       </View>
+      {loading && (
+        <View
+          style={{
+            backgroundColor: '#00000030',
+            flex: 1,
+            position: 'absolute',
+            justifyContent: 'center',
+            alignContent: 'center',
+            alignItems: 'center',
+            width: '100%',
+            height: '100%',
+            zIndex: 999,
+          }}>
+          <ActivityIndicator size="large" color="#FC8019" />
+        </View>
+      )}
     </View>
   );
 };

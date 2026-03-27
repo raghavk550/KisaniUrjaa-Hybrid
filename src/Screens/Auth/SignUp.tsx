@@ -1,7 +1,9 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/react-in-jsx-scope */
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {
+  ActivityIndicator,
   Image,
   StyleSheet,
   Text,
@@ -9,18 +11,30 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../Navigation/RootNavigator';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../Navigation/RootNavigator';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../Helper/Redux/User/UserStore';
+import {getOTP, logout} from '../../Helper/Redux/Auth/AuthSlice';
+import Toast from 'react-native-toast-message';
 
-type NavigationProp = NativeStackNavigationProp<
-  RootStackParamList,
-  'SignUp'
->;
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'SignUp'>;
 
 const SignUp = () => {
   const [text, setText] = useState('');
   const navigation = useNavigation<NavigationProp>();
+  const isFocused = useIsFocused();
+  const dispatch = useDispatch<AppDispatch>();
+  const {loading} = useSelector((state: RootState) => state.auth);
+
+  useEffect(() => {
+    dispatch(logout());
+    if (!isFocused) {
+      return;
+    }
+  }, [isFocused]);
+
   return (
     <View style={styles.container}>
       <Image
@@ -102,8 +116,33 @@ const SignUp = () => {
           />
         </View>
         <TouchableOpacity
-          onPress={() => {
-            navigation.navigate('Otp', {isLogin: false});
+          onPress={async () => {
+            if (text.length !== 10) {
+              Toast.show({
+                type: 'error',
+                text1: 'Invalid Mobile Number',
+                text2: 'Please enter a valid 10-digit mobile number.',
+                position: 'bottom',
+              });
+              return;
+            }
+            await dispatch(logout());
+            try {
+              const data = await dispatch(getOTP(text)).unwrap();
+              Toast.show({
+                type: 'success',
+                text1: data.user.otp ?? 'OTP Sent',
+                position: 'bottom',
+              });
+              navigation.navigate('Otp', {isLogin: false, apiResult: data});
+            } catch (error) {
+              Toast.show({
+                type: 'error',
+                text1: 'Error',
+                text2: String(error),
+                position: 'bottom',
+              });
+            }
           }}
           style={styles.otpButton}>
           <Text style={styles.otpText}>Get OTP</Text>
@@ -129,6 +168,33 @@ const SignUp = () => {
             </Text>
           </TouchableOpacity>
         </View>
+      </View>
+      <View
+        style={{
+          flex: 1,
+          position: 'absolute',
+          justifyContent: 'center',
+          alignItems: 'center',
+          alignContent: 'center',
+          width: '100%',
+          height: '100%',
+        }}>
+        {loading && (
+          <View
+            style={{
+              backgroundColor: '#00000030',
+              flex: 1,
+              position: 'absolute',
+              justifyContent: 'center',
+              alignContent: 'center',
+              alignItems: 'center',
+              width: '100%',
+              height: '100%',
+              zIndex: 999,
+            }}>
+            <ActivityIndicator size="large" color="#FC8019" />
+          </View>
+        )}
       </View>
     </View>
   );

@@ -1,8 +1,10 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/react-in-jsx-scope */
 import {useNavigation} from '@react-navigation/native';
 import {useContext, useState} from 'react';
 import {
+  ActivityIndicator,
   Image,
   StyleSheet,
   Text,
@@ -11,15 +13,16 @@ import {
   View,
 } from 'react-native';
 import {AppContext} from '../Navigation/AppContext';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../Navigation/RootNavigator';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../Navigation/RootNavigator';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../Helper/Redux/User/UserStore';
+import {getOTP, loginUser} from '../../Helper/Redux/Auth/AuthSlice';
+import Toast from 'react-native-toast-message';
 
 type LoginType = 'otp' | 'userId';
 
-type NavigationProp = NativeStackNavigationProp<
-  RootStackParamList,
-  'Login'
->;
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
 const LoginView = () => {
   const [text, setText] = useState('');
@@ -35,6 +38,8 @@ const LoginView = () => {
     return null;
   }
   const {setAuthFlow} = context;
+  const dispatch = useDispatch<AppDispatch>();
+  const {loading} = useSelector((state: RootState) => state.auth);
   return (
     <View style={styles.container}>
       <Image
@@ -280,8 +285,28 @@ const LoginView = () => {
           </>
         )}
         <TouchableOpacity
-          onPress={() => {
-            navigation.navigate('Otp', {isLogin: true});
+          onPress={async () => {
+            try {
+              if (loginType === 'otp') {
+                await dispatch(loginUser(text)).unwrap();
+                const data = await dispatch(getOTP(text)).unwrap();
+                Toast.show({
+                  type: 'success',
+                  text1: data.user.otp ?? 'OTP Sent',
+                  position: 'bottom',
+                });
+                navigation.navigate('Otp', {isLogin: true, apiResult: data});
+              } else {
+                // TODO: - Implement User ID & Password login flow
+              }
+            } catch (error) {
+              Toast.show({
+                type: 'error',
+                text1: 'Login Failed',
+                text2: String(error),
+                position: 'bottom',
+              });
+            }
           }}
           style={styles.otpButton}>
           <Text style={styles.otpText}>
@@ -310,6 +335,22 @@ const LoginView = () => {
           </TouchableOpacity>
         </View>
       </View>
+      {loading && (
+        <View
+          style={{
+            backgroundColor: '#00000030',
+            flex: 1,
+            position: 'absolute',
+            justifyContent: 'center',
+            alignContent: 'center',
+            alignItems: 'center',
+            width: '100%',
+            height: '100%',
+            zIndex: 999,
+          }}>
+          <ActivityIndicator size="large" color="#FC8019" />
+        </View>
+      )}
     </View>
   );
 };
