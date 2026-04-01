@@ -82,11 +82,11 @@ export const verifyOTP = createAsyncThunk(
 export const createUserId = createAsyncThunk(
   'auth/createUserId',
   async (
-    {userId, apiResult}: {userId: string; apiResult: ApiResult},
+    {userId, token}: {userId: string; token: string},
     thunkAPI,
   ) => {
     try {
-      const data = await createUserIdApi(userId, apiResult);
+      const data = await createUserIdApi(userId, token);
       return data;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(getErrorMessage(error));
@@ -98,11 +98,11 @@ export const createUserId = createAsyncThunk(
 export const createPassword = createAsyncThunk(
   'auth/createPassword',
   async (
-    {password, apiResult}: {password: string; apiResult: ApiResult},
+    {password, token}: {password: string; token: string},
     thunkAPI,
   ) => {
     try {
-      const data = await createPasswordApi(password, apiResult);
+      const data = await createPasswordApi(password, token);
       return data;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(getErrorMessage(error));
@@ -113,9 +113,9 @@ export const createPassword = createAsyncThunk(
 // 🔥 Async thunk
 export const logoutUser = createAsyncThunk(
   'auth/logout',
-  async ({apiResult}: {apiResult: ApiResult}, thunkAPI) => {
+  async ({token}: {token: string}, thunkAPI) => {
     try {
-      const data = await LogoutApi(apiResult);
+      const data = await LogoutApi(token);
       return data;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(getErrorMessage(error));

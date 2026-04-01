@@ -3,7 +3,7 @@ import {ApiResult} from './LoginApi';
 
 export const createPasswordApi = async (
   password: string,
-  apiResult: ApiResult,
+  token: string,
 ): Promise<ApiResult> => {
   const CREATE_PASSWORD_URL = 'http://localhost:3000/api/auth/create-password';
   try {
@@ -14,7 +14,7 @@ export const createPasswordApi = async (
       },
       {
         headers: {
-          Authorization: `Bearer ${apiResult.token}`,
+          Authorization: `Bearer ${token}`,
         },
       },
     );

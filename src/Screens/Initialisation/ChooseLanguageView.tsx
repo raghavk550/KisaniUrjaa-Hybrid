@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import {Modal} from 'react-native';
 import {AppContext} from '../Navigation/AppContext';
-import { storage } from '../Navigation/Storage';
+import {storage} from '../Navigation/Storage';
 
 const ITEM_SIZE = Dimensions.get('window').width;
 const ChooseLanguageView = () => {

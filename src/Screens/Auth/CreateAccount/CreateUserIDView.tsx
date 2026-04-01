@@ -14,13 +14,15 @@ import {createUserId} from '../../../Helper/Redux/Auth/AuthSlice';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../Helper/Redux/User/UserStore';
 import Toast from 'react-native-toast-message';
+import {storage} from '../../Navigation/Storage';
+import {User} from '../../../Helper/ApiService/LoginApi';
 
 const CreateAccountView = () => {
   const [text, setText] = useState('');
   const [showTooltip, setShowTooltip] = useState(false);
   const navigation = useNavigation();
   const dispatch = useDispatch<AppDispatch>();
-  const {data, loading} = useSelector((state: RootState) => state.auth);
+  const {loading} = useSelector((state: RootState) => state.auth);
   return (
     <View style={styles.container}>
       <Image
@@ -126,10 +128,22 @@ const CreateAccountView = () => {
         <TouchableOpacity
           onPress={async () => {
             try {
-              console.log(data);
-              if (data) {
+              const storedUser = storage.getString('user');
+
+              let parsedUser: {user: User; token: string} | null = null;
+              if (storedUser) {
+                try {
+                  parsedUser = JSON.parse(storedUser) as {
+                    user: User;
+                    token: string;
+                  };
+                } catch {
+                  parsedUser = null;
+                }
+              }
+              if (parsedUser) {
                 await dispatch(
-                  createUserId({userId: text, apiResult: data}),
+                  createUserId({userId: text, token: parsedUser?.token || ''}),
                 ).unwrap();
                 navigation.navigate('CreatePassword' as never);
               }

@@ -21,6 +21,7 @@ import {AppDispatch} from '../../Helper/Redux/User/UserStore';
 import {useDispatch} from 'react-redux';
 import {User} from '../../Helper/ApiService/LoginApi';
 import {RootStackParamList} from '../Navigation/RootNavigator';
+import Step3View from './Views/Step3View';
 
 export const enum Gender {
   Male,
@@ -47,6 +48,8 @@ const HomeView = () => {
         return <Step1View />;
       case 2:
         return <Step2View />;
+      case 3:
+        return <Step3View />;
       default:
         return null;
     }
@@ -75,7 +78,10 @@ const HomeView = () => {
             let parsedUser: {user: User; token: string} | null = null;
             if (storedUser) {
               try {
-                parsedUser = JSON.parse(storedUser) as {user: User; token: string};
+                parsedUser = JSON.parse(storedUser) as {
+                  user: User;
+                  token: string;
+                };
               } catch {
                 parsedUser = null;
               }

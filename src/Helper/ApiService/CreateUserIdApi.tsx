@@ -3,7 +3,7 @@ import {ApiResult} from './LoginApi';
 
 export const createUserIdApi = async (
   userID: string,
-  apiResult: ApiResult,
+  token: string,
 ): Promise<ApiResult> => {
   const CREATE_USER_ID_URL = 'http://localhost:3000/api/auth/create-user-id';
   try {
@@ -14,7 +14,7 @@ export const createUserIdApi = async (
       },
       {
         headers: {
-          Authorization: `Bearer ${apiResult.token}`,
+          Authorization: `Bearer ${token}`,
         },
       },
     );

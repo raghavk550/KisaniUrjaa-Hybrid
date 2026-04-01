@@ -14,6 +14,8 @@ import Toast from 'react-native-toast-message';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../../Helper/Redux/User/UserStore';
 import {createPassword} from '../../../Helper/Redux/Auth/AuthSlice';
+import {storage} from '../../Navigation/Storage';
+import {User} from '../../../Helper/ApiService/LoginApi';
 
 const CreatePasswordView = () => {
   const [pass, setPass] = useState('');
@@ -24,7 +26,7 @@ const CreatePasswordView = () => {
   const eyeOffIcon = require('../../../Assets/Images/ic-eye-off.png');
   const navigation = useNavigation();
   const dispatch = useDispatch<AppDispatch>();
-  const {data, loading} = useSelector((state: RootState) => state.auth);
+  const {loading} = useSelector((state: RootState) => state.auth);
   return (
     <View style={styles.container}>
       <Image
@@ -180,8 +182,24 @@ const CreatePasswordView = () => {
         <TouchableOpacity
           onPress={async () => {
             try {
+              const storedUser = storage.getString('user');
+
+              let parsedUser: {user: User; token: string} | null = null;
+              if (storedUser) {
+                try {
+                  parsedUser = JSON.parse(storedUser) as {
+                    user: User;
+                    token: string;
+                  };
+                } catch {
+                  parsedUser = null;
+                }
+              }
               await dispatch(
-                createPassword({password: pass, apiResult: data!}),
+                createPassword({
+                  password: pass,
+                  token: parsedUser?.token ?? '',
+                }),
               ).unwrap();
               navigation.navigate('VerifiedPassword' as never);
             } catch (error) {
