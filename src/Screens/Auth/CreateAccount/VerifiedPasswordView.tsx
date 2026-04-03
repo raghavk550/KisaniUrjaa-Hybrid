@@ -7,6 +7,8 @@ import {Image, StyleSheet, Text, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {storage} from '../../Navigation/Storage';
 import {AppContext} from '../../Navigation/AppContext';
+import {useSelector} from 'react-redux';
+import {RootState} from '../../../Helper/Redux/User/UserStore';
 
 const VerifiedPasswordView = () => {
   const context = useContext(AppContext);
@@ -14,16 +16,31 @@ const VerifiedPasswordView = () => {
     return null;
   }
 
-  const {setAppState} = context;
+  const {setAppState, setUser, user} = context;
   const navigation = useNavigation();
+  const {data} = useSelector((state: RootState) => state.auth);
   useEffect(() => {
     const timer = setTimeout(() => {
+      const updatedUser = data?.user ?? user?.user;
+      const updatedToken = data?.token ?? user?.token;
+
+      if (updatedUser && updatedToken) {
+        setUser({user: updatedUser, token: updatedToken});
+        storage.set(
+          'user',
+          JSON.stringify({user: updatedUser, token: updatedToken}),
+        );
+      }
+
       setAppState(prev => ({
         ...prev,
-        isAccountCreated: true,
+        isLogin: true,
       }));
-      storage.set('isAccountCreated', true);
-      navigation.navigate('Home' as never);
+      storage.set('isLogin', true);
+      navigation.reset({
+        index: 0,
+        routes: [{name: 'Home' as never}],
+      });
     }, 2000); // 2 sec splash
     return () => clearTimeout(timer);
   }, []);

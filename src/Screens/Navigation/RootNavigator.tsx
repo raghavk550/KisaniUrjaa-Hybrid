@@ -19,7 +19,9 @@ import ResetUserIdView from '../Auth/ResetUserIdView';
 import HomeView from '../Home/Home';
 import {useContext} from 'react';
 import {AppContext} from './AppContext';
-import { ApiResult } from '../../Helper/ApiService/LoginApi';
+import {ApiResult, User} from '../../Helper/ApiService/LoginApi';
+import {storage} from './Storage';
+import MainHomeView from '../MainHome/MainHomeView';
 
 export type RootStackParamList = {
   Splash1: undefined;
@@ -29,7 +31,7 @@ export type RootStackParamList = {
   SignUp: undefined;
   Login: undefined;
 
-  Otp: {isLogin?:boolean, isForgotPassword?: boolean, apiResult?: ApiResult};
+  Otp: {isLogin?: boolean; isForgotPassword?: boolean; apiResult?: ApiResult};
   VerifiedOtp: {isLogin?: boolean};
 
   CreateAccount: undefined;
@@ -42,6 +44,7 @@ export type RootStackParamList = {
   ResetPasswordUpdated: undefined;
   ResetUserId: undefined;
   Home: undefined;
+  MainHome: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -54,7 +57,7 @@ const RootNavigator = () => {
 
   const {appState} = context;
   const {user} = context;
-  const hasCreatedUserId = user?.user?.isUserIdCreated ?? false;
+  let hasCreatedUserId = user?.user?.isUserIdCreated ?? false;
 
   // 🔥 Onboarding Flow
   if (!appState.isSplash1Done) {
@@ -82,9 +85,18 @@ const RootNavigator = () => {
   }
 
   // 🔥 Auth / Main Flow
+  const storedUser = storage.getString('user');
+
+  let parsedUser: {user: User; token: string} | null = null;
+  if (storedUser) {
+    parsedUser = JSON.parse(storedUser);
+    hasCreatedUserId = parsedUser?.user?.isUserIdCreated ?? false;
+  }
   return (
     <Stack.Navigator
-      key={appState.isLogin ? 'logged-in' : 'logged-out'}
+      key={`${appState.isLogin ? 'logged-in' : 'logged-out'}-${
+        hasCreatedUserId ? 'user-id-created' : 'user-id-pending'
+      }`}
       initialRouteName={
         !appState.isLogin
           ? 'SignUp'
@@ -99,6 +111,7 @@ const RootNavigator = () => {
       <Stack.Screen name="CreateAccount" component={CreateAccountView} />
       <Stack.Screen name="Login" component={LoginView} />
       <Stack.Screen name="Home" component={HomeView} />
+      <Stack.Screen name="MainHome" component={MainHomeView} />
       <Stack.Screen name="Otp" component={OTPView} />
       <Stack.Screen name="VerifiedOtp" component={VerifiedOtpView} />
       <Stack.Screen name="CreatePassword" component={CreatePasswordView} />

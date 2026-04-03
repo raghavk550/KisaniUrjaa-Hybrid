@@ -3,12 +3,15 @@
 import {useRef, useState} from 'react';
 import {
   Image,
+  Modal,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import {Gender} from '../Home';
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import KisaniDidiBottomSheet from './SelectKisaniDidiBottomSheet';
@@ -30,6 +33,23 @@ const Step1View = () => {
   const [isDocSelected, setIsDocSelected] = useState(false);
   const [docId, setDocId] = useState('');
   const [gender, setGender] = useState<Gender>(Gender.None);
+  const [dob, setDob] = useState<Date | undefined>(undefined);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [tempDate, setTempDate] = useState<Date>(new Date());
+
+  const formatDate = (date: Date) => {
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear().toString().slice();
+    return `${day}/${month}/${year}`;
+  };
+
+  const openDatePicker = () => {
+    const selectedDate = dob ?? new Date();
+    setTempDate(selectedDate);
+    setShowDatePicker(true);
+  };
+
   return (
     <>
       <Text style={{marginTop: 20, marginLeft: 16}}>My Kisani Didi</Text>
@@ -53,6 +73,8 @@ const Step1View = () => {
           <TextInput
             placeholder="Select Kisani Didi"
             pointerEvents="none"
+            editable={Platform.OS === 'android' ? false : true}
+            showSoftInputOnFocus={Platform.OS === 'android' ? false : true}
             style={{
               flex: 1,
               marginHorizontal: 8,
@@ -109,6 +131,8 @@ const Step1View = () => {
           <TextInput
             placeholder="Select Document"
             pointerEvents="none"
+            editable={Platform.OS === 'android' ? false : true}
+            showSoftInputOnFocus={Platform.OS === 'android' ? false : true}
             style={{
               flex: 1,
               marginHorizontal: 8,
@@ -444,32 +468,131 @@ const Step1View = () => {
             Date of Birth
           </Text>
         </View>
-        <View
-          style={{
-            marginTop: 12,
-            flexDirection: 'row',
-            alignSelf: 'stretch',
-            marginHorizontal: 16,
-            borderRadius: 12,
-            borderColor: '#E3E2E1',
-            borderWidth: 1,
-            height: 56,
-            alignItems: 'center',
-            paddingHorizontal: 14,
-            marginBottom: 24,
-          }}>
-          <Image source={require('../../../Assets/Images/ic_calendar.png')} />
-          <TextInput
-            placeholder="DD/MM/YY"
+        <TouchableOpacity onPress={openDatePicker}>
+          <View
             style={{
-              flex: 1,
-              marginHorizontal: 8,
-              fontSize: 14,
-              fontWeight: 'semibold',
-              color: '#353231',
+              marginTop: 12,
+              flexDirection: 'row',
+              alignSelf: 'stretch',
+              marginHorizontal: 16,
+              borderRadius: 12,
+              borderColor: '#E3E2E1',
+              borderWidth: 1,
+              height: 56,
+              alignItems: 'center',
+              paddingHorizontal: 14,
+              marginBottom: 24,
+            }}>
+            <Image source={require('../../../Assets/Images/ic_calendar.png')} />
+            <TextInput
+              placeholder="DD/MM/YY"
+              pointerEvents="none"
+              editable={Platform.OS === 'android' ? false : true}
+              showSoftInputOnFocus={Platform.OS === 'android' ? false : true}
+              value={dob ? formatDate(dob) : ''}
+              style={{
+                flex: 1,
+                marginHorizontal: 8,
+                fontSize: 14,
+                fontWeight: 'semibold',
+                color: '#353231',
+              }}
+            />
+          </View>
+        </TouchableOpacity>
+        {showDatePicker && Platform.OS === 'android' && (
+          <DateTimePicker
+            value={tempDate}
+            mode="date"
+            display="default"
+            maximumDate={new Date()}
+            onChange={event => {
+              if (event.type === 'dismissed') {
+                setShowDatePicker(false);
+                return;
+              }
+
+              const nextDate = event.nativeEvent?.timestamp
+                ? new Date(event.nativeEvent.timestamp)
+                : tempDate;
+
+              setTempDate(nextDate);
+              setDob(nextDate);
+              setShowDatePicker(false);
             }}
           />
-        </View>
+        )}
+        <Modal
+          visible={showDatePicker && Platform.OS === 'ios'}
+          transparent
+          animationType="slide"
+          onRequestClose={() => setShowDatePicker(false)}>
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'flex-end',
+              // alignItems: 'center',
+              backgroundColor: '#00000050',
+            }}>
+            <View
+              style={{
+                backgroundColor: 'white',
+                borderTopLeftRadius: 20,
+                borderTopRightRadius: 20,
+                paddingBottom: 32,
+                alignItems: 'center',
+              }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  paddingHorizontal: 20,
+                  paddingVertical: 16,
+                  borderBottomWidth: 1,
+                  borderBottomColor: '#E3E2E1',
+                  alignSelf: 'stretch',
+                }}>
+                <TouchableOpacity onPress={() => setShowDatePicker(false)}>
+                  <Text style={{fontSize: 16, color: '#625D5B'}}>Cancel</Text>
+                </TouchableOpacity>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontWeight: '600',
+                    color: '#161413',
+                  }}>
+                  Date of Birth
+                </Text>
+                <TouchableOpacity
+                  onPress={() => {
+                    setDob(tempDate);
+                    setShowDatePicker(false);
+                  }}>
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      fontWeight: '600',
+                      color: '#FC8019',
+                    }}>
+                    Done
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <DateTimePicker
+                value={tempDate}
+                mode="date"
+                display="spinner"
+                maximumDate={new Date()}
+                onChange={(_, date) => {
+                  if (date) {
+                    setTempDate(date);
+                  }
+                }}
+                style={{height: 200, backgroundColor: 'white'}}
+              />
+            </View>
+          </View>
+        </Modal>
         <KisaniDidiBottomSheet ref={kisaniBottomSheetRef} />
         <DocBottomSheet
           ref={docBottomSheetRef}

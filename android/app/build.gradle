@@ -117,3 +117,26 @@ dependencies {
         implementation jscFlavor
     }
 }
+
+afterEvaluate {
+    def reanimatedProject = project.findProject(':react-native-reanimated')
+    if (reanimatedProject != null) {
+        def debugPrefabTask = reanimatedProject.tasks.findByName('prefabDebugPackage')
+        def releasePrefabTask = reanimatedProject.tasks.findByName('prefabReleasePackage')
+
+        tasks.matching { task ->
+            task.name.toLowerCase().contains('externalnative') ||
+            task.name.toLowerCase().contains('cmake') ||
+            task.name == 'preDebugBuild' ||
+            task.name == 'preReleaseBuild'
+        }.configureEach { task ->
+            def lowerName = task.name.toLowerCase()
+            if (lowerName.contains('debug') && debugPrefabTask != null) {
+                task.dependsOn(debugPrefabTask)
+            }
+            if (lowerName.contains('release') && releasePrefabTask != null) {
+                task.dependsOn(releasePrefabTask)
+            }
+        }
+    }
+}

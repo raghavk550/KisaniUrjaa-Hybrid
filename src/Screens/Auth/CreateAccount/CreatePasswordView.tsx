@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import {useNavigation} from '@react-navigation/native';
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -16,6 +16,7 @@ import {AppDispatch, RootState} from '../../../Helper/Redux/User/UserStore';
 import {createPassword} from '../../../Helper/Redux/Auth/AuthSlice';
 import {storage} from '../../Navigation/Storage';
 import {User} from '../../../Helper/ApiService/LoginApi';
+import {AppContext} from '../../Navigation/AppContext';
 
 const CreatePasswordView = () => {
   const [pass, setPass] = useState('');
@@ -25,8 +26,16 @@ const CreatePasswordView = () => {
   const eyeIcon = require('../../../Assets/Images/ic-eye.png');
   const eyeOffIcon = require('../../../Assets/Images/ic-eye-off.png');
   const navigation = useNavigation();
+  const context = useContext(AppContext);
   const dispatch = useDispatch<AppDispatch>();
   const {loading} = useSelector((state: RootState) => state.auth);
+
+  if (!context) {
+    return null;
+  }
+
+  const {setAppState, setUser} = context;
+
   return (
     <View style={styles.container}>
       <Image
@@ -195,12 +204,30 @@ const CreatePasswordView = () => {
                   parsedUser = null;
                 }
               }
-              await dispatch(
+              const data = await dispatch(
                 createPassword({
                   password: pass,
                   token: parsedUser?.token ?? '',
                 }),
               ).unwrap();
+
+              if (parsedUser) {
+                const updatedUser = data?.user ?? parsedUser.user;
+                const updatedToken = data?.token ?? parsedUser.token;
+
+                setUser({user: updatedUser, token: updatedToken});
+                storage.set(
+                  'user',
+                  JSON.stringify({user: updatedUser, token: updatedToken}),
+                );
+              }
+
+              setAppState(prev => ({
+                ...prev,
+                isLogin: true,
+              }));
+              storage.set('isLogin', true);
+
               navigation.navigate('VerifiedPassword' as never);
             } catch (error) {
               Toast.show({

@@ -1,11 +1,12 @@
 import axios from 'axios';
 import {ApiResult} from './LoginApi';
+import BASE_URL from './ApiConfig';
 
 export const createPasswordApi = async (
   password: string,
   token: string,
 ): Promise<ApiResult> => {
-  const CREATE_PASSWORD_URL = 'http://localhost:3000/api/auth/create-password';
+  const CREATE_PASSWORD_URL = `${BASE_URL}/api/auth/create-password`;
   try {
     const response = await axios.post(
       CREATE_PASSWORD_URL,

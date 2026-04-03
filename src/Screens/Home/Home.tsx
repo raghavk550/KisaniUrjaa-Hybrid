@@ -49,6 +49,7 @@ const HomeView = () => {
       case 2:
         return <Step2View />;
       case 3:
+      case 4:
         return <Step3View />;
       default:
         return null;
@@ -163,7 +164,14 @@ const HomeView = () => {
         {renderStep()}
         <TouchableOpacity
           onPress={() => {
-            currentStep < 4 && setCurrentStep(currentStep + 1);
+            if (currentStep < 4) {
+              setCurrentStep(currentStep + 1);
+            } else {
+              navigation.reset({
+                index: 0,
+                routes: [{name: 'MainHome'}],
+              });
+            }
           }}
           style={[styles.continueButton]}>
           <Text style={styles.continueText}>Continue</Text>

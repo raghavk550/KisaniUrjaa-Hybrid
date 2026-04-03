@@ -1,11 +1,14 @@
 import axios from 'axios';
+import BASE_URL from './ApiConfig';
+import type {WeatherData} from '../Redux/Home/HomeSlice';
 
 export type ApiResult = {
   message: string;
   token?: string;
   tempToken?: string;
   expiresAt?: string;
-  user: User;
+  user?: User;
+  weatherData?: WeatherData;
 };
 
 export type User = {
@@ -19,7 +22,7 @@ export type User = {
 };
 
 export const loginApi = async (number: string): Promise<ApiResult> => {
-  const LOGIN_URL = 'http://localhost:3000/api/auth/login';
+  const LOGIN_URL = `${BASE_URL}/api/auth/login`;
   const response = await axios.post(LOGIN_URL, {
     number: number,
   });

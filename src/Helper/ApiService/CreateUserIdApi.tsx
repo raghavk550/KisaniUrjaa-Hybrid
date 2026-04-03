@@ -1,11 +1,12 @@
 import axios from 'axios';
 import {ApiResult} from './LoginApi';
+import BASE_URL from './ApiConfig';
 
 export const createUserIdApi = async (
   userID: string,
   token: string,
 ): Promise<ApiResult> => {
-  const CREATE_USER_ID_URL = 'http://localhost:3000/api/auth/create-user-id';
+  const CREATE_USER_ID_URL = `${BASE_URL}/api/auth/create-user-id`;
   try {
     const response = await axios.post(
       CREATE_USER_ID_URL,

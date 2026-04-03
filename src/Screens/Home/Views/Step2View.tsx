@@ -1,7 +1,8 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   Image,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -85,14 +86,20 @@ const Step2View = () => {
           height: 70,
           alignItems: numberOfLines >= 2 ? 'center' : 'flex-start',
           justifyContent: 'flex-start',
-          padding: 18,
+          paddingHorizontal: 18,
+          paddingVertical: 8,
         }}>
-        <Image source={require('../../../Assets/Images/ic-user.png')} />
+        <Image
+          source={require('../../../Assets/Images/ic-user.png')}
+          style={{
+            marginTop: numberOfLines >= 2 ? 0 : 4.5,
+          }}
+        />
         <TextInput
           multiline
           numberOfLines={2}
           placeholder="Enter Complete Address..."
-          onContentSizeChange={(e) => {
+          onContentSizeChange={e => {
             setContentHeight(e.nativeEvent.contentSize.height);
           }}
           style={{
@@ -103,6 +110,12 @@ const Step2View = () => {
             color: '#353231',
             textAlignVertical: 'top',
             lineHeight: lineHeight,
+            alignSelf: numberOfLines >= 2 ? 'center' : 'flex-start',
+            paddingTop: Platform.OS === 'android' ? 5 : undefined,
+            paddingBottom: Platform.OS === 'android' ? 0 : undefined,
+            includeFontPadding: Platform.OS === 'android' ? false : undefined,
+            marginTop:
+              Platform.OS === 'android' ? 0 : numberOfLines >= 2 ? 0 : 4.5,
           }}
         />
       </View>

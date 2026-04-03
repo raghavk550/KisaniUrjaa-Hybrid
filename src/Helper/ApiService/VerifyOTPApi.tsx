@@ -1,11 +1,12 @@
 import axios from 'axios';
 import {ApiResult} from './LoginApi';
+import BASE_URL from './ApiConfig';
 
 export const verifyOTPApi = async (
   otp: string,
   apiResult: ApiResult,
 ): Promise<ApiResult> => {
-  const VERIFY_OTP_URL = 'http://localhost:3000/api/auth/verify-otp';
+  const VERIFY_OTP_URL = `${BASE_URL}/api/auth/verify-otp`;
   try {
     const response = await axios.post(
       VERIFY_OTP_URL,

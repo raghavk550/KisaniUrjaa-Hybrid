@@ -1,8 +1,9 @@
 import axios from 'axios';
 import {ApiResult} from './LoginApi';
+import BASE_URL from './ApiConfig';
 
 export const getOTPApi = async (number: string): Promise<ApiResult> => {
-  const OTP_URL = 'http://localhost:3000/api/auth/get-otp';
+  const OTP_URL = `${BASE_URL}/api/auth/get-otp`;
   try {
     const response = await axios.post(OTP_URL, {number});
     return response.data;

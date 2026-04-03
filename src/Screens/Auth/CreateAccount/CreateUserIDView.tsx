@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import {useNavigation} from '@react-navigation/native';
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   View,
   StyleSheet,
@@ -16,13 +16,22 @@ import {AppDispatch, RootState} from '../../../Helper/Redux/User/UserStore';
 import Toast from 'react-native-toast-message';
 import {storage} from '../../Navigation/Storage';
 import {User} from '../../../Helper/ApiService/LoginApi';
+import {AppContext} from '../../Navigation/AppContext';
 
 const CreateAccountView = () => {
   const [text, setText] = useState('');
   const [showTooltip, setShowTooltip] = useState(false);
   const navigation = useNavigation();
+  const context = useContext(AppContext);
   const dispatch = useDispatch<AppDispatch>();
   const {loading} = useSelector((state: RootState) => state.auth);
+
+  if (!context) {
+    return null;
+  }
+
+  const {setAppState, setUser} = context;
+
   return (
     <View style={styles.container}>
       <Image
@@ -142,10 +151,33 @@ const CreateAccountView = () => {
                 }
               }
               if (parsedUser) {
-                await dispatch(
+                const data = await dispatch(
                   createUserId({userId: text, token: parsedUser?.token || ''}),
                 ).unwrap();
-                navigation.navigate('CreatePassword' as never);
+
+                const updatedUser = data?.user
+                  ? data.user
+                  : {
+                      ...parsedUser.user,
+                      isUserIdCreated: true,
+                    };
+                const updatedToken = data?.token ?? parsedUser.token;
+
+                setUser({user: updatedUser, token: updatedToken});
+                storage.set(
+                  'user',
+                  JSON.stringify({user: updatedUser, token: updatedToken}),
+                );
+                setAppState(prev => ({
+                  ...prev,
+                  isLogin: true,
+                }));
+                storage.set('isLogin', true);
+
+                navigation.reset({
+                  index: 0,
+                  routes: [{name: 'CreatePassword' as never}],
+                });
               }
             } catch (error) {
               Toast.show({
