@@ -4,6 +4,7 @@ import {useContext, useEffect} from 'react';
 import {
   ActivityIndicator,
   Image,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -254,41 +255,97 @@ const MainHomeView = () => {
           </Text>
         </View>
 
-        <View style={styles.kisaniCard}>
-          <Image
-            source={require('../../Assets/Images/MainHome/ellipse.png')}
-            style={styles.kisaniCardEllipse}
-          />
+        <ScrollView
+          style={{flex: 1, alignSelf: 'stretch', marginBottom: 16}}
+          showsVerticalScrollIndicator={false}>
+          <View style={styles.kisaniCard}>
+            <Image
+              source={require('../../Assets/Images/MainHome/ellipse.png')}
+              style={styles.kisaniCardEllipse}
+            />
 
-          <View style={styles.kisaniCardContent}>
-            <View style={styles.kisaniInfoSection}>
-              <Image
-                source={require('../../Assets/Images/MainHome/kisaniDidi.png')}
-                style={styles.kisaniImage}
-              />
+            <View style={styles.kisaniCardContent}>
+              <View style={styles.kisaniInfoSection}>
+                <Image
+                  source={require('../../Assets/Images/MainHome/kisaniDidi.png')}
+                  style={styles.kisaniImage}
+                />
 
-              <View style={styles.kisaniTextBlock}>
-                <Text style={styles.kisaniLabel}>Kisani Didi</Text>
-                <Text style={styles.kisaniName} numberOfLines={1}>
-                  Sumita Kumari
-                </Text>
+                <View style={styles.kisaniTextBlock}>
+                  <Text style={styles.kisaniLabel}>Kisani Didi</Text>
+                  <Text style={styles.kisaniName} numberOfLines={1}>
+                    Sumita Kumari
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.kisaniActions}>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={styles.actionButton}>
+                  <Image
+                    source={require('../../Assets/Images/MainHome/whatsapp.png')}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={styles.actionButton}>
+                  <Image
+                    source={require('../../Assets/Images/MainHome/phone.png')}
+                  />
+                </TouchableOpacity>
               </View>
             </View>
+          </View>
+          <View
+            style={{
+              marginTop: 28,
+              alignSelf: 'stretch',
+              justifyContent: 'space-between',
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}>
+            <Text style={{fontSize: 18, fontWeight: 'bold', color: '#353231'}}>
+              My Registered Lands
+            </Text>
+            <TouchableOpacity>
+              <View
+                style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
+                <Text
+                  style={{fontSize: 14, fontWeight: '500', color: '#686868'}}>
+                  See all
+                </Text>
+                <Image
+                  source={require('../../Assets/Images/MainHome/rightArrow.png')}
+                />
+              </View>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.landCardWrapper}>
+            <Image
+              source={require('../../Assets/Images/MainHome/dummyImg.png')}
+              style={styles.landImage}
+            />
 
-            <View style={styles.kisaniActions}>
-              <TouchableOpacity activeOpacity={0.8} style={styles.actionButton}>
-                <Image
-                  source={require('../../Assets/Images/MainHome/whatsapp.png')}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity activeOpacity={0.8} style={styles.actionButton}>
-                <Image
-                  source={require('../../Assets/Images/MainHome/phone.png')}
-                />
-              </TouchableOpacity>
+            <View style={styles.landCard}>
+              <Text style={styles.landTitle}>Paddy Field</Text>
+
+              <View style={styles.cropChip}>
+                <View style={styles.cropIconWrap}>
+                  <Image
+                    source={require('../../Assets/Images/MainHome/Union.png')}
+                  />
+                </View>
+                <Text style={styles.cropChipText}>3 Crops added</Text>
+              </View>
+
+              <View style={styles.landStatsRow}>
+                <Text style={styles.landStatsLabel}>Owned</Text>
+                <Text style={styles.landStatsValue}>12 Acres</Text>
+              </View>
             </View>
           </View>
-        </View>
+        </ScrollView>
       </View>
       {loading && (
         <View
@@ -391,5 +448,78 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#FFFFFF',
     marginLeft: 12,
+  },
+  landCardWrapper: {
+    marginTop: 16,
+    alignSelf: 'stretch',
+    minHeight: 158,
+    position: 'relative',
+    justifyContent: 'center',
+  },
+  landImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    zIndex: 2,
+  },
+  landCard: {
+    marginLeft: 14,
+    marginTop: 14,
+    borderRadius: 20,
+    backgroundColor: '#FFFFFF',
+    padding: 16,
+    shadowColor: '#00000014',
+    shadowOffset: {width: 0, height: 6},
+    shadowOpacity: 1,
+    shadowRadius: 20,
+    elevation: 3,
+  },
+  landTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#111111',
+    marginLeft: 90,
+  },
+  cropChip: {
+    marginTop: 10,
+    marginLeft: 90,
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  cropIconWrap: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#F5F7F8',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
+  },
+  cropChipText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#7ABA3D',
+  },
+  landStatsRow: {
+    marginTop: 26,
+    borderRadius: 8,
+    backgroundColor: '#F1F1F150',
+    paddingLeft: 16,
+    paddingRight: 24,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  landStatsLabel: {
+    fontSize: 12,
+    fontWeight: '400',
+    color: '#4E4E4E90',
+  },
+  landStatsValue: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#353231',
   },
 });

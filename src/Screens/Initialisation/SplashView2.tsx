@@ -8,11 +8,12 @@ import {
   Dimensions,
   Animated,
   PanResponder,
+  Platform,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import Video from 'react-native-video';
+import Video, {ViewType} from 'react-native-video';
 import {AppContext} from '../Navigation/AppContext';
-import { storage } from '../Navigation/Storage';
+import {storage} from '../Navigation/Storage';
 
 const SplashView2 = () => {
   const BUTTON_WIDTH = Dimensions.get('window').width * 0.85;
@@ -59,10 +60,17 @@ const SplashView2 = () => {
   return (
     <View style={styles.mainView}>
       <Video
-        source={require('../../Assets/Videos/Splash2.mp4')}
+        source={
+          Platform.OS === 'android'
+            ? require('../../Assets/Videos/Splash2Android.mp4')
+            : require('../../Assets/Videos/Splash2.mp4')
+        }
         style={StyleSheet.absoluteFill}
         resizeMode="cover"
         repeat
+        viewType={Platform.OS === 'android' ? ViewType.TEXTURE : undefined}
+        hideShutterView={Platform.OS === 'android'}
+        shutterColor={Platform.OS === 'android' ? 'transparent' : undefined}
       />
 
       <View style={styles.backgroundView}>
@@ -134,8 +142,12 @@ const styles = StyleSheet.create({
   },
   arrow: {
     fontSize: 18,
+    lineHeight: 18,
     fontWeight: '600',
     color: '#FC8019',
+    includeFontPadding: false,
+    textAlign: 'center',
+    textAlignVertical: 'center',
   },
 
   buttonText: {
