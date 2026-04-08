@@ -1,6 +1,6 @@
 /* eslint-disable react/react-in-jsx-scope */
 /* eslint-disable react-native/no-inline-styles */
-import {useContext, useEffect} from 'react';
+import {useContext, useEffect, useState} from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -18,6 +18,7 @@ import {User} from '../../Helper/ApiService/LoginApi';
 import {AppContext} from '../Navigation/AppContext';
 import Geolocation from 'react-native-geolocation-service';
 import {requestLocationPermission} from '../../Helper/Permissions/LocationPermission';
+import Svg, {Circle} from 'react-native-svg';
 
 const MainHomeView = () => {
   const today = new Date();
@@ -25,6 +26,9 @@ const MainHomeView = () => {
   const context = useContext(AppContext);
   const {data, loading} = useSelector((state: RootState) => state.home);
   const user = context?.user;
+  const [isProfileCompleted, setIsProfileCompleted] = useState(false);
+  const hometop = require('../../Assets/Images/MainHome/mainHomeTop.png');
+  const homeTopProfile = require('../../Assets/Images/MainHome/mainHomeTopProfile.png');
 
   const formattedDate = today.toLocaleDateString('en-IN', {
     weekday: 'long',
@@ -39,6 +43,15 @@ const MainHomeView = () => {
   const temperatureValue = weatherData?.temperature || '32';
   const temperatureUnit = '°';
   const weatherDescription = weatherData?.description || 'Partly Cloudy';
+  const r = 17;
+  const strokeWidth = 3;
+  const cx = 20;
+  const cy = 20;
+
+  const circumference = 2 * Math.PI * r;
+  const progress = 0.40;
+
+  const dashOffset = circumference * (1 - progress);
 
   const getLocation = async (): Promise<{
     latitude: number;
@@ -125,12 +138,12 @@ const MainHomeView = () => {
       }
     };
 
-    // fetchWeather();
+    fetchWeather();
   }, [dispatch, user?.token]);
   return (
     <View style={styles.container}>
       <Image
-        source={require('../../Assets/Images/MainHome/mainHomeTop.png')}
+        source={isProfileCompleted ? hometop : homeTopProfile}
         style={styles.topImage}
       />
       <View style={styles.headerContent}>
@@ -174,6 +187,80 @@ const MainHomeView = () => {
             source={require('../../Assets/Images/MainHome/notifFrame.png')}
           />
         </View>
+        {!isProfileCompleted && (
+          <>
+            <View
+              style={{
+                height: 72,
+                alignSelf: 'stretch',
+                marginTop: 20,
+                borderRadius: 16,
+                borderWidth: 1.5,
+                backgroundColor: '#FFFFFF30',
+                borderColor: '#FFFFFF65',
+                justifyContent: 'center',
+              }}>
+              <View style={{flexDirection: 'row', marginLeft: 18, gap: 8}}>
+                <View style={{justifyContent: 'center', alignItems: 'center'}}>
+                  <Svg width={40} height={40}>
+                    {/* Background Circle (Gray Border) */}
+                    <Circle
+                      cx={cx}
+                      cy={cy}
+                      r={r}
+                      stroke="gray"
+                      strokeWidth={strokeWidth}
+                      fill="transparent"
+                      opacity={0.4}
+                    />
+
+                    {/* Progress Arc (Black 40%) */}
+                    <Circle
+                      cx={cx}
+                      cy={cy}
+                      r={r}
+                      stroke="#353231"
+                      strokeWidth={strokeWidth}
+                      fill="transparent"
+                      strokeDasharray={circumference}
+                      strokeDashoffset={dashOffset}
+                      strokeLinecap="round"
+                      transform={`rotate(-90 ${cx} ${cy})`}
+                    />
+                  </Svg>
+                  <Text
+                    style={{
+                      position: 'absolute',
+                      fontSize: 10,
+                      color: '#000000',
+                      fontWeight: 'bold',
+                    }}>
+                    {progress * 100}%
+                  </Text>
+                </View>
+                <View>
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      fontWeight: '700',
+                      color: '#353231',
+                    }}>
+                    Please complete your profile details
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 10,
+                      fontWeight: '500',
+                      color: '#565656',
+                      marginTop: 2,
+                    }}>
+                    Click here to complete
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </>
+        )}
         <Text
           style={{
             fontSize: 16,
@@ -257,6 +344,7 @@ const MainHomeView = () => {
 
         <ScrollView
           style={{flex: 1, alignSelf: 'stretch', marginBottom: 16}}
+          contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}>
           <View style={styles.kisaniCard}>
             <Image
@@ -375,6 +463,11 @@ const styles = StyleSheet.create({
   },
   topImage: {
     width: '100%',
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+  },
+  scrollContent: {
+    paddingBottom: 1120,
   },
   headerContent: {
     position: 'absolute',

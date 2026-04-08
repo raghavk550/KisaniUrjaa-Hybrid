@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react/react-in-jsx-scope */
 // RootNavigator.tsx
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -22,6 +23,9 @@ import {AppContext} from './AppContext';
 import {ApiResult, User} from '../../Helper/ApiService/LoginApi';
 import {storage} from './Storage';
 import MainHomeView from '../MainHome/MainHomeView';
+import AccountView from '../MainHome/AccountView';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import BottomTabBar from '../MainHome/BottomTabBar';
 
 export type RootStackParamList = {
   Splash1: undefined;
@@ -44,10 +48,28 @@ export type RootStackParamList = {
   ResetPasswordUpdated: undefined;
   ResetUserId: undefined;
   Home: undefined;
-  MainHome: undefined;
+  MainTabs: undefined;
+};
+
+type MainTabParamList = {
+  HomeTab: undefined;
+  AccountTab: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+const Tab = createBottomTabNavigator<MainTabParamList>();
+
+const MainTabs = () => {
+  return (
+    <Tab.Navigator
+      initialRouteName="HomeTab"
+      screenOptions={{headerShown: false}}
+      tabBar={props => <BottomTabBar {...props} />}>
+      <Tab.Screen name="HomeTab" component={MainHomeView} />
+      <Tab.Screen name="AccountTab" component={AccountView} />
+    </Tab.Navigator>
+  );
+};
 
 const RootNavigator = () => {
   const context = useContext(AppContext);
@@ -111,7 +133,7 @@ const RootNavigator = () => {
       <Stack.Screen name="CreateAccount" component={CreateAccountView} />
       <Stack.Screen name="Login" component={LoginView} />
       <Stack.Screen name="Home" component={HomeView} />
-      <Stack.Screen name="MainHome" component={MainHomeView} />
+      <Stack.Screen name="MainTabs" component={MainTabs} />
       <Stack.Screen name="Otp" component={OTPView} />
       <Stack.Screen name="VerifiedOtp" component={VerifiedOtpView} />
       <Stack.Screen name="CreatePassword" component={CreatePasswordView} />

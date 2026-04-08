@@ -169,7 +169,7 @@ const HomeView = () => {
             } else {
               navigation.reset({
                 index: 0,
-                routes: [{name: 'MainHome'}],
+                routes: [{name: 'MainTabs'}],
               });
             }
           }}
