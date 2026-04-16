@@ -1,56 +1,36 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/react-in-jsx-scope */
-import {StyleSheet, View} from 'react-native';
-import Svg, {Path} from 'react-native-svg';
+import {StyleSheet, Text, View} from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 
 const AccountView = () => {
   return (
     <View style={styles.container}>
-      <View
+      <LinearGradient
+        colors={['#ACD2D6', '#AEE5BE']}
+        locations={[0, 1]}
+        start={{x: 0, y: 0.5}}
+        end={{x: 1, y: 0.5}}
         style={{
-          backgroundColor: 'red',
-          height: 100,
-          width: 100,
-          borderTopLeftRadius: 26,
+          alignSelf: 'stretch',
+          height: 200,
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          borderBottomLeftRadius: 24,
+          borderBottomRightRadius: 24,
         }}
       />
-      <View
+      <Text
         style={{
-          backgroundColor: 'white',
-          height: 100,
-          width: 100,
-          marginTop: -180,
-          marginRight: 160,
-          borderBottomRightRadius: 26,
-          borderEndColor: 'black',
-        }}
-      />
-      <View
-        style={{
-          backgroundColor: 'white',
-          height: 100,
-          width: 100,
-          marginTop: -100,
-          marginRight: -160,
-          borderBottomLeftRadius: 26,
-          borderEndColor: 'black',
-        }}
-      />
-
-      <Svg width="100%" height={80} style={{position: 'absolute', top: 40}}>
-        <Path
-          d="
-      M0 40
-      Q50 40 60 0
-      Q75 -20 90 0
-      Q100 40 150 40
-      L150 80
-      L0 80
-      Z
-    "
-          fill="green"
-        />
-      </Svg>
+          fontSize: 18,
+          fontWeight: '700',
+          color: '#161413',
+          marginTop: 66,
+        }}>
+        Account
+      </Text>
     </View>
   );
 };
@@ -60,8 +40,7 @@ export default AccountView;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
   },
 });

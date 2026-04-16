@@ -1,14 +1,18 @@
 import axios from 'axios';
 import BASE_URL from './ApiConfig';
-import type {WeatherData} from '../Redux/Home/HomeSlice';
+import type {NewsData, WeatherData} from '../Redux/Home/HomeSlice';
 
 export type ApiResult = {
   message: string;
   token?: string;
+  count?: number;
   tempToken?: string;
   expiresAt?: string;
   user?: User;
   weatherData?: WeatherData;
+  news?: NewsData[];
+  newsData: NewsData;
+  newsDetails?: NewsData;
 };
 
 export type User = {

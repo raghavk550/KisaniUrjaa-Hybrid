@@ -292,7 +292,7 @@ const LoginView = () => {
                 const data = await dispatch(getOTP(text)).unwrap();
                 Toast.show({
                   type: 'success',
-                  text1: data.user.otp ?? 'OTP Sent',
+                  text1: data?.user?.otp ?? 'OTP Sent',
                   position: 'bottom',
                 });
                 navigation.navigate('Otp', {isLogin: true, apiResult: data});

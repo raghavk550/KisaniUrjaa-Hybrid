@@ -26,6 +26,9 @@ import MainHomeView from '../MainHome/MainHomeView';
 import AccountView from '../MainHome/AccountView';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import BottomTabBar from '../MainHome/BottomTabBar';
+import AllNewsView from '../MainHome/Views/AllNews';
+import NewsDetailsView from '../MainHome/Views/NewsDetails';
+import NewsWebView from '../MainHome/Views/NewsWebView';
 
 export type RootStackParamList = {
   Splash1: undefined;
@@ -51,9 +54,12 @@ export type RootStackParamList = {
   MainTabs: undefined;
 };
 
-type MainTabParamList = {
+export type MainTabParamList = {
   HomeTab: undefined;
   AccountTab: undefined;
+  AllNews: undefined;
+  NewsDetails: {newsId: string};
+  NewsWebView: {url: string; title?: string};
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -67,6 +73,9 @@ const MainTabs = () => {
       tabBar={props => <BottomTabBar {...props} />}>
       <Tab.Screen name="HomeTab" component={MainHomeView} />
       <Tab.Screen name="AccountTab" component={AccountView} />
+      <Tab.Screen name="AllNews" component={AllNewsView} />
+      <Tab.Screen name="NewsDetails" component={NewsDetailsView} />
+      <Tab.Screen name="NewsWebView" component={NewsWebView} />
     </Tab.Navigator>
   );
 };

@@ -172,7 +172,7 @@ const OTPView = () => {
                       setTimeLeft(60); // Reset timer on successful resend
                       Toast.show({
                         type: 'success',
-                        text1: apiResult.user.otp ?? 'OTP Sent',
+                        text1: apiResult?.user?.otp ?? 'OTP Sent',
                         position: 'bottom',
                       });
                     } catch (resendError) {

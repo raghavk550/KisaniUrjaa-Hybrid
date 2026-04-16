@@ -3,7 +3,9 @@
 import {useContext, useEffect, useState} from 'react';
 import {
   ActivityIndicator,
+  Dimensions,
   Image,
+  ImageSourcePropType,
   ScrollView,
   StyleSheet,
   Text,
@@ -19,6 +21,24 @@ import {AppContext} from '../Navigation/AppContext';
 import Geolocation from 'react-native-geolocation-service';
 import {requestLocationPermission} from '../../Helper/Permissions/LocationPermission';
 import Svg, {Circle} from 'react-native-svg';
+import {useInternet} from '../../Helper/Utilities/InternetConnectionHook';
+import { useNavigation } from '@react-navigation/native';
+
+export type MyRegisteredLands = {
+  img: any;
+  cropName: string;
+  cropCount: number;
+  isOwned: boolean;
+  areaUnit: string;
+};
+
+type NewsItem = {
+  title: string;
+  description: string;
+  publishedAt: string;
+  image?: ImageSourcePropType;
+  showLogoPlaceholder?: boolean;
+};
 
 const MainHomeView = () => {
   const today = new Date();
@@ -26,7 +46,8 @@ const MainHomeView = () => {
   const context = useContext(AppContext);
   const {data, loading} = useSelector((state: RootState) => state.home);
   const user = context?.user;
-  const [isProfileCompleted, setIsProfileCompleted] = useState(false);
+  const [isProfileCompleted, _] = useState(true);
+  const navigation = useNavigation();
   const hometop = require('../../Assets/Images/MainHome/mainHomeTop.png');
   const homeTopProfile = require('../../Assets/Images/MainHome/mainHomeTopProfile.png');
 
@@ -49,9 +70,65 @@ const MainHomeView = () => {
   const cy = 20;
 
   const circumference = 2 * Math.PI * r;
-  const progress = 0.40;
+  const progress = 0.4;
+  const isOnline = useInternet();
 
   const dashOffset = circumference * (1 - progress);
+
+  const myRegisteredLands: MyRegisteredLands[] = [
+    {
+      img: require('../../Assets/Images/MainHome/RegisteredLand/dummyImg1.png'),
+      cropName: 'Paddy Field',
+      cropCount: 3,
+      isOwned: true,
+      areaUnit: '12 Acres',
+    },
+    {
+      img: require('../../Assets/Images/MainHome/RegisteredLand/dummyImg2.png'),
+      cropName: 'Wheat Field',
+      cropCount: 0,
+      isOwned: true,
+      areaUnit: '12 Acres',
+    },
+  ];
+
+  const latestNews: NewsItem[] = [
+    {
+      title:
+        'Crop-residue burning turning India into global methane hotspot, UN...',
+      description:
+        'India has emerged as a global hotspot for methane emissions from crop-residue burning.',
+      publishedAt: '15 Nov, 2025 at 2:00 PM',
+      showLogoPlaceholder: true,
+    },
+    {
+      title:
+        'Crop-residue burning turning India into global methane hotspot, UN...',
+      description:
+        'India has emerged as a global hotspot for methane emissions from crop-residue burning.',
+      publishedAt: '15 Nov, 2025 at 2:00 PM',
+      image: require('../../Assets/Images/MainHome/RegisteredLand/dummyImg2.png'),
+    },
+  ];
+
+  const latestVideos: NewsItem[] = [
+    {
+      title:
+        'Crop-residue burning turning India into global methane hotspot, UN...',
+      description:
+        'India has emerged as a global hotspot for methane emissions from crop-residue burning.',
+      publishedAt: '15 Nov, 2025 at 2:00 PM',
+      image: require('../../Assets/Images/MainHome/RegisteredLand/dummyImg1.png'),
+    },
+    {
+      title:
+        'Crop-residue burning turning India into global methane hotspot, UN...',
+      description:
+        'India has emerged as a global hotspot for methane emissions from crop-residue burning.',
+      publishedAt: '15 Nov, 2025 at 2:00 PM',
+      image: require('../../Assets/Images/MainHome/RegisteredLand/dummyImg2.png'),
+    },
+  ];
 
   const getLocation = async (): Promise<{
     latitude: number;
@@ -138,9 +215,54 @@ const MainHomeView = () => {
       }
     };
 
-    fetchWeather();
-  }, [dispatch, user?.token]);
-  return (
+    if (isOnline) {
+      fetchWeather();
+    }
+  }, [dispatch, user?.token, isOnline]);
+  return isOnline === false ? (
+    <View
+      style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}>
+      <View
+        style={{
+          paddingHorizontal: 16,
+          paddingVertical: 30,
+          backgroundColor: '#fff',
+          borderRadius: 24,
+          alignSelf: 'stretch',
+          marginHorizontal: 16,
+        }}>
+        <Image
+          source={require('../../Assets/Images/noInternet.png')}
+          style={{alignSelf: 'center'}}
+        />
+        <Text
+          style={{
+            fontSize: 18,
+            fontWeight: '600',
+            color: '#161413',
+            textAlign: 'center',
+            marginTop: 16,
+          }}>
+          No Internet Connection
+        </Text>
+        <Text
+          style={{
+            fontSize: 12,
+            fontWeight: '500',
+            color: '#857E7B',
+            textAlign: 'center',
+            marginTop: 8,
+          }}>
+          It seems you are not connected to the internet. Please check your
+          connection and try again.
+        </Text>
+      </View>
+    </View>
+  ) : (
     <View style={styles.container}>
       <Image
         source={isProfileCompleted ? hometop : homeTopProfile}
@@ -341,9 +463,8 @@ const MainHomeView = () => {
             {'Today is a good day to apply pesticides.'}
           </Text>
         </View>
-
         <ScrollView
-          style={{flex: 1, alignSelf: 'stretch', marginBottom: 16}}
+          style={styles.mainScrollView}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}>
           <View style={styles.kisaniCard}>
@@ -351,7 +472,6 @@ const MainHomeView = () => {
               source={require('../../Assets/Images/MainHome/ellipse.png')}
               style={styles.kisaniCardEllipse}
             />
-
             <View style={styles.kisaniCardContent}>
               <View style={styles.kisaniInfoSection}>
                 <Image
@@ -366,7 +486,6 @@ const MainHomeView = () => {
                   </Text>
                 </View>
               </View>
-
               <View style={styles.kisaniActions}>
                 <TouchableOpacity
                   activeOpacity={0.8}
@@ -409,30 +528,284 @@ const MainHomeView = () => {
               </View>
             </TouchableOpacity>
           </View>
-          <View style={styles.landCardWrapper}>
-            <Image
-              source={require('../../Assets/Images/MainHome/dummyImg.png')}
-              style={styles.landImage}
-            />
+          {myRegisteredLands.map((item, index) => (
+            <View
+              key={`${item.cropName}-${item.areaUnit}-${index}`}
+              style={styles.landCardWrapper}>
+              <Image source={item.img} style={styles.landImage} />
 
-            <View style={styles.landCard}>
-              <Text style={styles.landTitle}>Paddy Field</Text>
+              <View style={styles.landCard}>
+                <Text style={styles.landTitle}>{item.cropName}</Text>
 
-              <View style={styles.cropChip}>
-                <View style={styles.cropIconWrap}>
-                  <Image
-                    source={require('../../Assets/Images/MainHome/Union.png')}
-                  />
+                <View style={styles.cropChip}>
+                  <View style={styles.cropIconWrap}>
+                    <Image
+                      source={
+                        item.cropCount > 0
+                          ? require('../../Assets/Images/MainHome/RegisteredLand/greenLeaf.png')
+                          : require('../../Assets/Images/MainHome/RegisteredLand/orangeLeaf.png')
+                      }
+                    />
+                  </View>
+                  <Text
+                    style={[
+                      styles.cropChipText,
+                      {color: item.cropCount > 0 ? '#7ABA3D' : '#DF8700'},
+                    ]}>
+                    {item.cropCount > 0
+                      ? `${item.cropCount} Crops added`
+                      : 'No Crops added'}
+                  </Text>
                 </View>
-                <Text style={styles.cropChipText}>3 Crops added</Text>
-              </View>
 
-              <View style={styles.landStatsRow}>
-                <Text style={styles.landStatsLabel}>Owned</Text>
-                <Text style={styles.landStatsValue}>12 Acres</Text>
+                <View style={styles.landStatsRow}>
+                  <Text style={styles.landStatsLabel}>Owned</Text>
+                  <Text style={styles.landStatsValue}>12 Acres</Text>
+                </View>
               </View>
             </View>
+          ))}
+
+          <View
+            style={{
+              marginTop: 28,
+              alignSelf: 'stretch',
+              justifyContent: 'space-between',
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}>
+            <Text style={{fontSize: 18, fontWeight: 'bold', color: '#353231'}}>
+              Latest News
+            </Text>
+            <TouchableOpacity onPress={() => {
+                navigation.navigate('AllNews' as never);
+            }}>
+              <View
+                style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
+                <Text
+                  style={{fontSize: 14, fontWeight: '500', color: '#686868'}}>
+                  See all
+                </Text>
+                <Image
+                  source={require('../../Assets/Images/MainHome/rightArrow.png')}
+                />
+              </View>
+            </TouchableOpacity>
           </View>
+
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.newsListContent}
+            style={styles.newsList}>
+            {latestNews.map((newsItem, index) => (
+              <TouchableOpacity
+                key={`${newsItem.title}-${index}`}
+                activeOpacity={0.85}
+                style={styles.newsCard}>
+                <View style={styles.newsImageWrap}>
+                  {newsItem.showLogoPlaceholder ? (
+                    <View style={styles.newsLogoPlaceholder}>
+                      <Image
+                        source={require('../../Assets/Images/Logo.png')}
+                        style={styles.newsLogoImage}
+                        resizeMode="contain"
+                      />
+                    </View>
+                  ) : (
+                    <Image
+                      source={newsItem.image}
+                      style={styles.newsImage}
+                      resizeMode="cover"
+                    />
+                  )}
+                </View>
+
+                <Text style={styles.newsTitle} numberOfLines={2}>
+                  {newsItem.title}
+                </Text>
+
+                <Text style={styles.newsDescription} numberOfLines={2}>
+                  {newsItem.description}
+                </Text>
+
+                <View style={styles.newsMetaRow}>
+                  <Image
+                    source={require('../../Assets/Images/ic_calendar.png')}
+                    style={styles.newsCalendarIcon}
+                  />
+                  <Text style={styles.newsMetaText}>
+                    {newsItem.publishedAt}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          <View
+            style={{
+              marginTop: 28,
+              alignSelf: 'stretch',
+              justifyContent: 'space-between',
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}>
+            <Text style={{fontSize: 18, fontWeight: 'bold', color: '#353231'}}>
+              Latest Videos
+            </Text>
+            <TouchableOpacity>
+              <View
+                style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
+                <Text
+                  style={{fontSize: 14, fontWeight: '500', color: '#686868'}}>
+                  See all
+                </Text>
+                <Image
+                  source={require('../../Assets/Images/MainHome/rightArrow.png')}
+                />
+              </View>
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.newsListContent}
+            style={styles.newsList}>
+            {latestVideos.map((newsItem, index) => (
+              <TouchableOpacity
+                key={`${newsItem.title}-${index}`}
+                activeOpacity={0.85}
+                style={[
+                  styles.newsCard,
+                  {width: Dimensions.get('window').width * 0.8},
+                ]}>
+                <View style={[styles.newsImageWrap, {height: 188}]}>
+                  {newsItem.showLogoPlaceholder ? (
+                    <View style={styles.newsLogoPlaceholder}>
+                      <Image
+                        source={require('../../Assets/Images/Logo.png')}
+                        style={styles.newsLogoImage}
+                        resizeMode="contain"
+                      />
+                    </View>
+                  ) : (
+                    <Image
+                      source={newsItem.image}
+                      style={styles.newsImage}
+                      resizeMode="cover"
+                    />
+                  )}
+                  <TouchableOpacity
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}>
+                    <Image
+                      source={require('../../Assets/Images/MainHome/videoPause.png')}
+                    />
+                  </TouchableOpacity>
+                </View>
+
+                <Text style={styles.newsTitle} numberOfLines={2}>
+                  {newsItem.title}
+                </Text>
+
+                <Text style={styles.newsDescription} numberOfLines={2}>
+                  {newsItem.description}
+                </Text>
+
+                <View style={styles.newsMetaRow}>
+                  <Image
+                    source={require('../../Assets/Images/ic_calendar.png')}
+                    style={styles.newsCalendarIcon}
+                  />
+                  <Text style={styles.newsMetaText}>
+                    {newsItem.publishedAt}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          <View
+            style={{
+              marginTop: 28,
+              alignSelf: 'stretch',
+              justifyContent: 'space-between',
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}>
+            <Text style={{fontSize: 18, fontWeight: 'bold', color: '#353231'}}>
+              Latest Articles
+            </Text>
+            <TouchableOpacity>
+              <View
+                style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
+                <Text
+                  style={{fontSize: 14, fontWeight: '500', color: '#686868'}}>
+                  See all
+                </Text>
+                <Image
+                  source={require('../../Assets/Images/MainHome/rightArrow.png')}
+                />
+              </View>
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.newsListContent}
+            style={styles.newsList}>
+            {latestNews.map((newsItem, index) => (
+              <TouchableOpacity
+                key={`${newsItem.title}-${index}`}
+                activeOpacity={0.85}
+                style={styles.newsCard}>
+                <View style={styles.newsImageWrap}>
+                  {newsItem.showLogoPlaceholder ? (
+                    <View style={styles.newsLogoPlaceholder}>
+                      <Image
+                        source={require('../../Assets/Images/Logo.png')}
+                        style={styles.newsLogoImage}
+                        resizeMode="contain"
+                      />
+                    </View>
+                  ) : (
+                    <Image
+                      source={newsItem.image}
+                      style={styles.newsImage}
+                      resizeMode="cover"
+                    />
+                  )}
+                </View>
+
+                <Text style={styles.newsTitle} numberOfLines={2}>
+                  {newsItem.title}
+                </Text>
+
+                <Text style={styles.newsDescription} numberOfLines={2}>
+                  {newsItem.description}
+                </Text>
+
+                <View style={styles.newsMetaRow}>
+                  <Image
+                    source={require('../../Assets/Images/ic_calendar.png')}
+                    style={styles.newsCalendarIcon}
+                  />
+                  <Text style={styles.newsMetaText}>
+                    {newsItem.publishedAt}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </ScrollView>
       </View>
       {loading && (
@@ -467,17 +840,22 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 24,
   },
   scrollContent: {
-    paddingBottom: 1120,
+    paddingBottom: 120,
   },
   headerContent: {
     position: 'absolute',
     top: 65,
+    bottom: 0,
     left: 16,
     right: 16,
     alignItems: 'flex-start',
   },
-  kisaniCard: {
+  mainScrollView: {
+    flex: 1,
+    alignSelf: 'stretch',
     marginTop: 28,
+  },
+  kisaniCard: {
     alignSelf: 'stretch',
     minHeight: 100,
     borderRadius: 20,
@@ -561,10 +939,10 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     backgroundColor: '#FFFFFF',
     padding: 16,
-    shadowColor: '#00000014',
-    shadowOffset: {width: 0, height: 6},
-    shadowOpacity: 1,
-    shadowRadius: 20,
+    shadowColor: '#00000006',
+    shadowOffset: {width: 0, height: 8},
+    shadowOpacity: 0.6,
+    shadowRadius: 16,
     elevation: 3,
   },
   landTitle: {
@@ -613,6 +991,74 @@ const styles = StyleSheet.create({
   landStatsValue: {
     fontSize: 14,
     fontWeight: '700',
+    color: '#353231',
+  },
+  newsList: {
+    alignSelf: 'stretch',
+    marginTop: 12,
+    backgroundColor: 'transparent',
+  },
+  newsListContent: {
+    gap: 14,
+  },
+  newsCard: {
+    width: Dimensions.get('window').width * 0.62,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    padding: 10,
+    shadowColor: '#00000006',
+    shadowOffset: {width: 0, height: 8},
+    shadowOpacity: 0.6,
+    shadowRadius: 16,
+    elevation: 3,
+  },
+  newsImageWrap: {
+    height: 128,
+    borderRadius: 10,
+    backgroundColor: '#E6E6E6',
+  },
+  newsLogoPlaceholder: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#E7E7E7',
+    alignSelf: 'center',
+    flex: 1,
+  },
+  newsLogoImage: {
+    opacity: 0.75,
+  },
+  newsImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 10,
+  },
+  newsTitle: {
+    marginTop: 6,
+    fontSize: 12,
+    lineHeight: 18,
+    fontWeight: '600',
+    color: '#353231',
+  },
+  newsDescription: {
+    marginTop: 4,
+    fontSize: 10,
+    lineHeight: 16,
+    fontWeight: '400',
+    color: '#625D5B',
+  },
+  newsMetaRow: {
+    marginTop: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  newsCalendarIcon: {
+    width: 12,
+    height: 14,
+    marginRight: 8,
+  },
+  newsMetaText: {
+    fontSize: 10,
+    fontWeight: '400',
     color: '#353231',
   },
 });
