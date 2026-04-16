@@ -73,7 +73,7 @@ const NewsDetailsView = () => {
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: 16,
-          paddingBottom: 120,
+          paddingBottom: 30,
         }}>
         <View style={styles.newsMetaRow}>
           <Image

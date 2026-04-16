@@ -73,9 +73,6 @@ const MainTabs = () => {
       tabBar={props => <BottomTabBar {...props} />}>
       <Tab.Screen name="HomeTab" component={MainHomeView} />
       <Tab.Screen name="AccountTab" component={AccountView} />
-      <Tab.Screen name="AllNews" component={AllNewsView} />
-      <Tab.Screen name="NewsDetails" component={NewsDetailsView} />
-      <Tab.Screen name="NewsWebView" component={NewsWebView} />
     </Tab.Navigator>
   );
 };
@@ -158,6 +155,21 @@ const RootNavigator = () => {
         component={ResetPasswordUpdatedView}
       />
       <Stack.Screen name="ResetUserId" component={ResetUserIdView} />
+      <Tab.Screen
+        name="AllNews"
+        component={AllNewsView}
+        options={{tabBarStyle: {display: 'none'}}}
+      />
+      <Tab.Screen
+        name="NewsDetails"
+        component={NewsDetailsView}
+        options={{tabBarStyle: {display: 'none'}}}
+      />
+      <Tab.Screen
+        name="NewsWebView"
+        component={NewsWebView}
+        options={{tabBarStyle: {display: 'none'}}}
+      />
     </Stack.Navigator>
   );
 };

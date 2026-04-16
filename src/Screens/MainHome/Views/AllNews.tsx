@@ -294,6 +294,6 @@ const styles = StyleSheet.create({
     color: '#353231',
   },
   scrollContent: {
-    paddingBottom: 120,
+    paddingBottom: 20,
   },
 });
